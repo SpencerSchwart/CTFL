@@ -1,22 +1,19 @@
-#include "embed.h"
-#undef EMBED
 #include "navier-stokes/centered.h"
 // #include "navier-stokes/double-projection.h"
 #include "../immersed.h" // IBM
-#include "../interfaceforce.h" // for CD and CL
-#include "curvature.h"
+// #include "curvature.h"
 #include "view.h"
 
 #define MAX_THICKNESS 0.12
 #define CHORD_LENGTH 1
 #define L0 20.
 #define Re (2000.)
-#define LEVEL 12
+#define LEVEL 13
 
 double U0 =  1.0; // inlet velocity
 double rr = 1.1019*sq(MAX_THICKNESS); // Radius of leading edge
-// double theta_p = 0.0872665; // aoa = 5 degrees
-double theta_p = 0.34906585; // aoa = 20 degrees
+// double theta_p = 5*pi/180; // aoa = 5 degrees
+double theta_p = 20*pi/180; // aoa = 20 degrees
 
 coord vc = {0.,0.}; // the velocity of the cylinder
 coord ci = {5, 10}; // initial coordinates of airfoil
@@ -102,7 +99,7 @@ int main(){
   size(L0);
   init_grid (2 << (LEVEL-4));
   mu = muv;
-  TOLERANCE = 1.e-8 [*];
+  TOLERANCE = 1.e-5 [*];
 
   j = 0; // SPM
   run();
@@ -128,17 +125,16 @@ event init (t = 0) {
 scalar ref[];
 face vector rf[];
 vertex scalar phia[];
-vector nv[];
 
 event moving_cylinder (i++) {
   airfoil_shape (airfoil, sf, theta_p, phia);
   airfoil_shape (ref, rf, theta_p);
-  
-  if (j == 0) { // SPM
-  normal_vector(ref, nv);
 
+  if (j == 0) { // SPM
   foreach() {
-      double lambda = fabs(nv.x[]) + fabs(nv.y[]);
+    coord nv;
+    normal_vector (point, sf, &nv);
+      double lambda = fabs(nv.x) + fabs(nv.y);
       double eta = 0.065*(1 - sq(lambda)) + 0.39;
       double num = - SDF (x,y);
       double den = lambda * eta * sqrt(2) * Delta;
@@ -149,6 +145,7 @@ event moving_cylinder (i++) {
 // 		      i, t, nv.x[], nv.y[], lambda, eta, vof, airfoil[], x, y, Delta, num, den, (num/den)*scale);
     }
   }
+
 }
 
 
@@ -159,12 +156,31 @@ event properties (i++) {
 }
 
 
-event logfile (i++; t <= 15){
+event logfile (i++; t <= 15) {
 
-  coord Fp, Fmu;
-  interface_force (airfoil, p, u, mu, &Fp, &Fmu);
-  double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(CHORD_LENGTH));
-  double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(CHORD_LENGTH));
+  coord Fp;
+  immersed_force (airfoil, sf, &Fp);
+  double CD = (Fp.x)/(0.5*sq(U0)*(CHORD_LENGTH));
+  double CL = (Fp.y)/(0.5*sq(U0)*(CHORD_LENGTH));
+/*
+  double E = 0;
+  double E_p = 0;
+  boundary ({u.x, u.y});
+  scalar omega[];
+  vorticity (u , omega);
+  foreach(){
+    double vort = omega[];
+    double area = dv();
+    E_p += sq(vort);
+    if (airfoil[] < 1. && airfoil[] > 0){
+      coord b, n;
+      area *= embed_geometryo (point, &b, &n);
+      vort = embed_vorticityo (point, u, b, n);
+    }
+    E += area*sq(vort);
+  }
+*/
+
   fprintf (stderr, "%d %g %d %d %d %d %d %g %g\n",
 	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL);
   
@@ -186,20 +202,25 @@ event movie (t += 1e-2; t <= 10)
 }
 */
 
+event movie (t += 0.01; t <= 10) {
+
+}
+
 event screenshot (t += 0.5; t <= 15) {
-  view (fov =2, camera = "front", 
+  char name[80];
+  sprintf (name, "%d-piso-%g.png", j, t);
+  FILE * fp1 = fopen (name, "w");
+  view (fov = 2, camera = "front", 
         tx = -0.25, ty = -0.5, bg = {1,1,1},
 	width = 3200, height = 3200);
   clear();
   draw_vof ("ref", "rf", filled = 1, lw = 3);
-  isoline ("p", n = 80, min = -1, max = 1);
-  if (j == 0)
-    save("piso-0.png");
-  else // j == 1
-    save("piso-1.png");
+  isoline ("p", n = 120, min = -1, max = 1);
+  save (fp = fp1);
+  fclose (fp1);
 }
 
 event adapt (i++) {
-  adapt_wavelet ({airfoil,u}, (double[]){1.e-4,3e-4,3e-4},
+  adapt_wavelet ({airfoil,u}, (double[]){1.e-2,3e-3,3e-3},
 		 maxlevel = LEVEL, minlevel = LEVEL - 6);
 }

@@ -1,0 +1,16 @@
+.qccDfFeGg/couettev2.c:1:7: warning: line number out of range
+couettev2-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘solid_force’:
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:168:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:168:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+couettev2.c: At top level:
+couettev2.c:12:22: warning: initializer element is not a constant expression [-Wpedantic]
+couettev2.c: In function ‘profile’:
+couettev2.c:88:16: warning: unused variable ‘area’ [-Wunused-variable]
+couettev2.c: In function ‘logfile’:
+couettev2.c:119:14: warning: unused variable ‘area’ [-Wunused-variable]
+couettev2.c:115:17: warning: unused variable ‘uc’ [-Wunused-variable]

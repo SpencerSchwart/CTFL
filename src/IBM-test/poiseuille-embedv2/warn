@@ -1,0 +1,5 @@
+.qcc5d24F8/poiseuille-embedv2.c:1:7: warning: line number out of range
+poiseuille-embedv2-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+poiseuille-embedv2.c:11:22: warning: initializer element is not a constant expression [-Wpedantic]

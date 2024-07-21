@@ -1,0 +1,4 @@
+qcc -autolink -02 -g -Wall -pipe -D_FORTIFY_SOURCE=2 -o sessile-inclined/sessile-inclined sessile-inclined.c  -lm
+cc: error: unrecognized command-line option ‘-02’
+qcc: error: cannot parse input (missing closing braces?)
+make: *** [sessile-inclined.s] Error 1

@@ -1,0 +1,11 @@
+.qccSXaQM6/cylinder-osctest.c:1:7: warning: line number out of range
+cylinder-osctest-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘solid_force’:
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:169:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:169:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+cylinder-osctest.c: In function ‘logfile’:
+cylinder-osctest.c:132:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-osctest.c:128:17: warning: unused variable ‘uc’ [-Wunused-variable]

@@ -1,0 +1,15 @@
+STL is NOT null
+0 01 0.002272732 0.003848333 0.004937534 0.005889935 0.006766116 0.007594877 0.008390028 0.009155689 0.0099030410 0.010640511 0.011374512 0.012108613 0.012842914 0.0135713../sysdeps/unix/sysv/linux/poll.c:29:error: [Thread debugging using libthread_db enabled]
+../sysdeps/unix/sysv/linux/poll.c:29:error: Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff71aa640 (LWP 865306)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff69a9640 (LWP 865307)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff61a8640 (LWP 865308)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff59a7640 (LWP 865309)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff51a6640 (LWP 865310)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff49a5640 (LWP 865311)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff41a4640 (LWP 865312)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff39a3640 (LWP 865313)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff31a2640 (LWP 865314)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff29a1640 (LWP 865315)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: [New Thread 0x7ffff21a0640 (LWP 865316)]
+../sysdeps/unix/sysv/linux/poll.c:29:error: Thread 1 "droneIBM" received signal SIGINT, Interrupt.

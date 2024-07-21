@@ -1,0 +1,5 @@
+./../interfaceforce.h:140: warning: stencils: cannot analyze point function pointers
+.qcc6Uao75/cylinder10.c:1:7: warning: line number out of range
+cylinder10-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range

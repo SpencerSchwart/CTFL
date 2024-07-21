@@ -1,6 +1,7 @@
 #include "embed.h"
 #undef EMBED
 #include "navier-stokes/centered.h"
+#include "navier-stokes/double-projection.h"
 // #include "navier-stokes/perfs.h"
 // #include "../double-projection2.h"
 #include "../immersed.h" // IBM
@@ -48,7 +49,7 @@ int main() {
   size(L0);
   init_grid (2 << (6));
   mu = muv;
-  TOLERANCE = 1.e-7 [*]; 
+  TOLERANCE = 1.e-5 [*]; 
 
   j = 10;
   Re = 1.;
@@ -181,7 +182,7 @@ event snapshot (t = t_end) {
 }
 
 event adapt (i++) {
-  adapt_wavelet ({airfoil,u}, (double[]){1.e-4,3e-4,3e-4},
+  adapt_wavelet ({airfoil,u}, (double[]){1.e-2,3e-3,3e-3},
 		 maxlevel = LEVEL, minlevel = 2);
 }
 
@@ -200,7 +201,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
     }
   }
   fflush (fv);
@@ -216,7 +217,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv1, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv1, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv1);
@@ -232,7 +233,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv2, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv2, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
     }
   }
   fflush (fv2);
@@ -248,7 +249,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv3, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv3, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv3);
@@ -264,12 +265,15 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv4, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv4, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv4);
   fclose (fv4);
  
+}
+
+event movie (t += 0.01; t <= t_end) {
 }
 
 event stop (t = t_end) {

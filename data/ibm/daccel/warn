@@ -1,0 +1,15 @@
+.qcceFt7GU/cylindernewtest2.c:1:7: warning: line number out of range
+cylindernewtest2-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘acceleration_0’:
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:168:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:168:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+cylindernewtest2.c: In function ‘logfile’:
+cylindernewtest2.c:115:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernewtest2.c:111:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernewtest2.c:115:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernewtest2.c:111:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernewtest2.c:104:9: warning: unused variable ‘total’ [-Wunused-variable]

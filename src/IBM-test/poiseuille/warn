@@ -1,0 +1,18 @@
+.qcc6l8EYc/poiseuille.c:1:7: warning: line number out of range
+poiseuille-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘solid_force’:
+./../immersed.h:125:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:125:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:204:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:204:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+poiseuille.c: At top level:
+poiseuille.c:12:22: warning: initializer element is not a constant expression [-Wpedantic]
+poiseuille.c: In function ‘profile’:
+poiseuille.c:81:16: warning: unused variable ‘area’ [-Wunused-variable]
+poiseuille.c:75:13: warning: unused variable ‘ucb’ [-Wunused-variable]
+poiseuille.c: In function ‘logfile’:
+poiseuille.c:120:14: warning: unused variable ‘area’ [-Wunused-variable]
+poiseuille.c:116:17: warning: unused variable ‘uc’ [-Wunused-variable]
+poiseuille.c:112:9: warning: unused variable ‘pe’ [-Wunused-variable]

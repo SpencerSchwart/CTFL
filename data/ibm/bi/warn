@@ -1,0 +1,14 @@
+.qcczaiMQr/cylindernew.c:1:7: warning: line number out of range
+cylindernew-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘solid_force’:
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:169:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:169:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+cylindernew.c: In function ‘logfile’:
+cylindernew.c:115:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernew.c:111:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernew.c:115:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernew.c:111:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernew.c:104:9: warning: unused variable ‘total’ [-Wunused-variable]

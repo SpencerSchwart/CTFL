@@ -1,4 +1,47 @@
-.qccGLGnwd/drone3D-test.c:1:7: warning: line number out of range
-/home/spencer/basilisk/CTFL/src/drone-test/.qccGLGnwd//:1:7: warning: line number out of range
-<built-in>: warning: line number out of range
-/usr/include/stdc-predef.h:1:7: warning: line number out of range
+main start
+STL is NOT null
+0 0 0 5.5517e-05 19.375 19.375 0 0.000107685 3.41146e-06 6.43292e-12
+1 5.5517e-05 0 5.5517e-05 19.3864 20.0009 10.4965 -0.0304475 0.0093505 9.72342
+2 0.0002109 0 0.000155383 20.7878 23.791 16.5942 -0.272169 -0.172505 1.6445
+3 0.000402843 0 0.000191943 25.892 24.1538 19.6382 -0.148948 -0.0825405 0.761235
+4 0.000598703 0 0.00019586 32.8128 30.8212 23.4565 -0.0449915 -0.00353744 0.242785
+5 0.000794563 0 0.00019586 26.3488 30.188 23.7087 -0.0240894 0.0113931 0.11913
+6 0.000994682 0 0.000200118 23.9664 32.0928 23.7127 -0.0218701 0.0159212 0.131342
+7 0.0011948 0 0.000200118 23.8824 31.1904 24.5448 -0.0207933 0.0127559 0.151717
+8 0.00139957 0 0.000204772 24.7708 29.9008 25.9217 -0.0192671 0.0122764 0.154247
+9 0.00160934 0 0.000209767 25.2433 31.1759 26.6684 -0.0191053 0.0109477 0.158384
+10 0.0018191 0 0.000209767 25.8151 31.9768 27.0569 -0.0198076 0.00908879 0.161096
+11 0.00202887 0 0.000209767 26.0591 32.5298 27.2319 -0.0191506 0.00697365 0.168668
+12 0.00224431 0 0.000215436 26.0161 32.6282 27.1911 -0.019035 0.00717232 0.170716
+
+ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers
+  built with gcc 11 (Ubuntu 11.2.0-19ubuntu1)
+  configuration: --prefix=/usr --extra-version=0ubuntu0.22.04.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librabbitmq --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-pocketsphinx --enable-librsvg --enable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 70.100 / 56. 70.100
+  libavcodec     58.134.100 / 58.134.100
+  libavformat    58. 76.100 / 58. 76.100
+  libavdevice    58. 13.100 / 58. 13.100
+  libavfilter     7.110.100 /  7.110.100
+  libswscale      5.  9.100 /  5.  9.100
+  libswresample   3.  9.100 /  3.  9.100
+  libpostproc    55.  9.100 / 55.  9.100
+Input #0, image2pipe, from 'pipe:':
+  Duration: N/A, bitrate: N/A
+  Stream #0:0: Video: ppm, rgb24, 1024x768, 25 fps, 25 tbr, 25 tbn, 25 tbc
+Stream mapping:
+  Stream #0:0 -> #0:0 (ppm (native) -> h264 (libx264))
+Finishing stream 0:0 without any data written to it.
+[libx264 @ 0x55555560f040] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 0x55555560f040] profile High, level 3.1, 4:2:0, 8-bit
+Output #0, mpegts, to '0-movie.mp4':
+  Metadata:
+    encoder         : Lavf58.76.100
+  Stream #0:0: Video: h264, yuv420p, 1024x768, q=2-31, 25 fps, 90k tbn
+    Metadata:
+      encoder         : Lavc58.134.100 libx264
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+frame=    0 fps=0.0 q=0.0 Lsize=       0kB time=00:00:00.00 bitrate=N/A speed=   0x    
+video:0kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Output file is empty, nothing was encoded (check -ss / -t / -frames parameters if used)
+Exiting normally, received signal 2.

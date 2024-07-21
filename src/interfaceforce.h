@@ -152,7 +152,7 @@ coord embed_gradiento (Point point, vector u, coord p, coord n)
 }
 
 
-double interface_force (scalar c, scalar p, vector u,
+void interface_force (scalar c, scalar p, vector u,
 			face vector mu, coord * Fp, coord * Fmu)
 {
   double Fn = 0.;
@@ -189,7 +189,7 @@ double interface_force (scalar c, scalar p, vector u,
 
 double embed_vorticityo (Point point, vector u, coord p, coord n)
 {
-  coord dudn = embed_gradiento (point, u, p, n);
+  coord dudn = embed_gradient (point, u, p, n);
 
   return dudn.y*n.x - dudn.x*n.y;
 }

@@ -1,0 +1,2 @@
+cc: error: unrecognized command-line option ‘-02’
+qcc: error: cannot parse input (missing closing braces?)

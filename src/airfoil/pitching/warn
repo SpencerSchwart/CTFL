@@ -1,0 +1,7 @@
+./../interfaceforce.h:140: warning: stencils: cannot analyze point function pointers
+.qccsFt3a7/pitching.c:1:7: warning: line number out of range
+pitching-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘immersed_force’:
+./../immersed.h:73:10: warning: unused variable ‘Fn’ [-Wunused-variable]

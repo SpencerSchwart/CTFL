@@ -1,16 +1,17 @@
 #include "embed.h"
 #undef EMBED
 #include "navier-stokes/centered.h"
+// #include "navier-stokes/double-projection.h"
 // #include "navier-stokes/perfs.h"
 // #include "../double-projection2.h"
 #include "../immersed.h" // IBM
-#include "../interfaceforce.h" // for CD and CL
+#include "../interfaceforce.h"
 #include "curvature.h"
 #include "view.h"
 
 #define L0 15.
 #define D 0.5
-#define LEVEL 10
+#define LEVEL 11
 
 double Re;
 double U0 =  1.0; // inlet velocity
@@ -41,14 +42,15 @@ u.n[bottom] = neumann (0);
 p[bottom] = neumann (0);
 
 double SDF (double x, double y) {
-   return - sq(x - ci.x) - sq(y - ci.y) + sq(D/2);
+   // return sqrt(sq(x - ci.x) + sq(y - ci.y)) - (D/2);
+   return sq (x - ci.x) + sq (y - ci.y) - sq(D/2);
 }
 
 int main() {
   size(L0);
   init_grid (2 << (6));
   mu = muv;
-  TOLERANCE = 1.e-7 [*]; 
+  TOLERANCE = 1.e-5 [*]; 
 
   j = 10;
   Re = 1.;
@@ -74,6 +76,7 @@ int main() {
   Re = 40.;
   run();
 
+  /*
   j = 20;
   Re = 1.;
   run();
@@ -97,6 +100,7 @@ int main() {
   j = 25;
   Re = 40.;
   run();
+  */
 }
 
 
@@ -107,20 +111,21 @@ event moving_cylinder (i++) {
   solid (airfoil, sf, - sq(x - ci.x) - sq(y - ci.y) + sq(D/2));
   solid (ref, rf, - sq(x - ci.x) - sq(y - ci.y) + sq(D/2));
 
-  if (j >= 20) {
-  vector nv[];
-  normal_vector(airfoil, nv);
+  /*
+//  if (j >= 20) {
     foreach() {
-      double lambda = fabs(nv.x[]) + fabs(nv.y[]);
+    coord nv;
+    normal_vector (point, airfoil, &nv);
+      double lambda = fabs(nv.x) + fabs(nv.y);
       if (lambda != 0.) {
         double eta = 0.065*(1 - sq(lambda)) + 0.39;
-        double num = - SDF (x,y); 
+        double num = SDF (x,y); 
         double den = lambda * eta * sqrt(2) * Delta;
         airfoil[] = den != 0? 0.5*(1 - tanh (num/den)): airfoil[];
       }
     }
-  }
-
+ // }
+ */
 }
 
 event init (t = 0) {
@@ -131,14 +136,14 @@ event init (t = 0) {
 event properties (i++) {
   foreach_face()
     muv.x[] = fm.x[]*(U0)*(D)/(Re);
- // boundary ((scalar *) {muv});
+   boundary ((scalar *) {muv});
 }
 
 
 event logfile (i++){
-  coord Fp, Fmu = {0,0};
-  interface_force (ref, p, u, mu, &Fp, &Fmu);
-  // immersed_force (ref, &Fp);
+  coord Fp = {0,0}, Fmu = {0,0};
+  // interface_force (airfoil, p, u, mu, &Fp, &Fmu);
+  immersed_force (airfoil, sf, &Fp);
   double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
   double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(D));
  
@@ -158,7 +163,7 @@ event logfile (i++){
     }
     E += area*sq(vort);
   }
-
+  
   fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g\n",
 	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL, E, E_p);
 	   
@@ -181,7 +186,7 @@ event snapshot (t = t_end) {
 }
 
 event adapt (i++) {
-  adapt_wavelet ({airfoil,u}, (double[]){1.e-4,3e-4,3e-4},
+  adapt_wavelet ({airfoil,u}, (double[]){1.e-2,3e-3,3e-3},
 		 maxlevel = LEVEL, minlevel = 2);
 }
 
@@ -200,7 +205,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
     }
   }
   fflush (fv);
@@ -216,7 +221,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv1, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv1, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv1);
@@ -232,7 +237,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv2, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv2, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
     }
   }
   fflush (fv2);
@@ -248,7 +253,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv3, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv3, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv3);
@@ -264,12 +269,15 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv4, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv4, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv4);
   fclose (fv4);
  
+}
+
+event movie (t += 0.01; t <= t_end) {
 }
 
 event stop (t = t_end) {

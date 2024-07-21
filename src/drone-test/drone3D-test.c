@@ -1,5 +1,5 @@
 #include "grid/octree.h"
-#include "embed.h"
+#include "../my-embed.h"
 #include "navier-stokes/centered.h"
 #include "navier-stokes/perfs.h"
 #include "utils.h"
@@ -55,8 +55,8 @@ u.r[front]    = dirichlet(-omega*x);
 // Outlet
 u.n[back]     = neumann(0);
 u.t[back]     = dirichlet( omega*y);
-p[back]       = neumann (0);
-pf[back]      = neumann (0);
+p[back]       = dirichlet (0);
+pf[back]      = dirichlet (0);
 u.r[back]     = dirichlet(-omega*x);
 
 u.n[embed]    = dirichlet(0);
@@ -260,9 +260,9 @@ event image (t += 1.25) {
 }
 
 event adapt (i++) {
-  double uemax = 0.1;
+  double uemax = 0.5;
   adapt_wavelet ({cs,u}, (double[]) {1.e-2, (uemax),(uemax),(uemax)},
 		  maxlevel = LEVEL, minlevel = (2));
-  unrefine (sq(x) + sq(y) > sq(D/2) && level > 4);
+ // unrefine (sq(x) + sq(y) > sq(D/2) && level > 4);
   // unrefine (z < -2.00 && level > 3);
 }

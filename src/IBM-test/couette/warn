@@ -1,0 +1,9 @@
+.qccMxHiIj/couette.c:1:7: warning: line number out of range
+couette-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘end_timestep_0’:
+./../immersed.h:96:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:96:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:158:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:158:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]

@@ -1,0 +1,17 @@
+.qccEtvtpW/couettelvl6.c:1:7: warning: line number out of range
+couettelvl6-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘solid_force’:
+./../immersed.h:125:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:125:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:204:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:204:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+couettelvl6.c: At top level:
+couettelvl6.c:11:22: warning: initializer element is not a constant expression [-Wpedantic]
+couettelvl6.c: In function ‘profile’:
+couettelvl6.c:88:16: warning: unused variable ‘area’ [-Wunused-variable]
+couettelvl6.c:82:13: warning: unused variable ‘ucb’ [-Wunused-variable]
+couettelvl6.c: In function ‘logfile’:
+couettelvl6.c:121:14: warning: unused variable ‘area’ [-Wunused-variable]
+couettelvl6.c:117:17: warning: unused variable ‘uc’ [-Wunused-variable]

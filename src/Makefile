@@ -1,2 +1,2 @@
-CFLAGS += -02
+# CFLAGS += -02
 include $(BASILISK)/Makefile.defs

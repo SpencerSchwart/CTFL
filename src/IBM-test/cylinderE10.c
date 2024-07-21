@@ -1,6 +1,6 @@
 #include "embed.h"
 #include "navier-stokes/centered.h"
-// #include "navier-stokes/perfs.h"
+// #include "navier-stokes/double-projection.h"
 #include "curvature.h"
 #include "view.h"
 
@@ -31,8 +31,11 @@ pf[right]  = dirichlet (0);
 
 u.n[top] = neumann (0);
 p[top] = neumann (0);
+pf[top] = neumann (0);
+
 u.n[bottom] = neumann (0);
 p[bottom] = neumann (0);
+pf[bottom] = neumann (0);
 
 double SDF (double x, double y) {
    return - sq(x - ci.x) - sq(y - ci.y) + sq(D/2);
@@ -40,9 +43,9 @@ double SDF (double x, double y) {
 
 int main() {
   size(L0);
-  init_grid (2 << (LEVEL - 3));
+  init_grid (2 << (LEVEL - 4));
   mu = muv;
-  TOLERANCE = 1.e-7 [*]; 
+  TOLERANCE = 1.e-5 [*]; 
 
   j = 10;
   Re = 1.;
@@ -66,6 +69,10 @@ int main() {
 
   j = 15;
   Re = 40.;
+  run();
+
+  j = 16;
+  Re = 80;
   run();
 }
 
@@ -93,11 +100,10 @@ event properties (i++) {
 event logfile (i++){
   coord Fp, Fmu;
   embed_force (p, u, mu, &Fp, &Fmu);
-  //interface_force (ref, p, u, mu, &Fp, &Fmu);
-  // immersed_force (ref, &Fp);
   double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
   double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(D));
- 
+
+ /* 
   double E = 0;
   double E_p = 0;
   boundary ({u.x, u.y});
@@ -106,17 +112,18 @@ event logfile (i++){
   foreach(){
     double vort = omega[];
     double area = dv();
-    E_p += sq(vort);
     if (cs[] < 1. && cs[] > 0){
       coord b, n;
       area *= embed_geometry (point, &b, &n);
       vort = embed_vorticity (point, u, b, n);
     }
     E += area*sq(vort);
-  }
+    E_p += sq(vort);
 
-  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g\n",
-	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL, E, E_p);
+  }
+*/
+  fprintf (stderr, "%d %g %d %d %d %d %d %g %g\n",
+	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL);
 	   
 }
 
@@ -136,7 +143,7 @@ event snapshot (t = t_end) {
 }
 
 event adapt (i++) {
-  adapt_wavelet ({cs,u}, (double[]){1.e-4,3e-4,3e-4},
+  adapt_wavelet ({cs,u}, (double[]){1.e-2,3e-3,3e-3},
 		 maxlevel = LEVEL, minlevel = 2);
 }
 
@@ -225,6 +232,10 @@ event profile (t = t_end) {
   fflush (fv4);
   fclose (fv4);
  
+}
+
+
+event movie (t += 0.01; t <= t_end) {
 }
 
 event stop (t = t_end) {
