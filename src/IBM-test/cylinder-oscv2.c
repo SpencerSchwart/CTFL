@@ -159,7 +159,7 @@ event profile (t = t_end) {
       double pcb = scalar_bilinear_interpolation (point, p, pc);
 
 
-      double theta = M_PI + atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
+      double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI) + 180;
       double umag = sqrt(sq(ucb.x) + sq(ucb.y));
       double fmag = sqrt(sq(fcb.x) + sq(fcb.y));
       double cp = pcb / (0.5 * sq(U0));
