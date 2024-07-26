@@ -1,0 +1,19 @@
+.qcc358dtF/cylindernewtest.c:1:7: warning: line number out of range
+cylindernewtest-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘printx’:
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h: In function ‘end_timestep_0’:
+./../immersed.h:136:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:136:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernewtest.c: In function ‘logfile’:
+cylindernewtest.c:116:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernewtest.c:112:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernewtest.c:116:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernewtest.c:112:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernewtest.c:105:9: warning: unused variable ‘total’ [-Wunused-variable]
+cylindernewtest.c:104:8: warning: unused variable ‘name’ [-Wunused-variable]
+cylindernewtest.c: In function ‘profile’:
+cylindernewtest.c:250:14: warning: unused variable ‘area’ [-Wunused-variable]

@@ -1,21 +1,18 @@
 #include "embed.h"
 #include "navier-stokes/centered.h"
-// #include "navier-stokes/double-projection.h"
-#include "curvature.h"
 #include "view.h"
 
-#define L0 15.
+#define L0 20
 #define D 0.5
 #define LEVEL 10
 
-double Re;
+int Re;
 double U0 =  1.0; // inlet velocity
 double t_end = 20 [0,1];
+double tf_start = 20 [0,1];
 double xi = 4.8266;
 double yi = 3.0835;
-coord ci = {5, 3}; // initial coordinates of cylinder
-coord vc = {0, 0}; // velocity of cylinder
-int j;
+coord ci = {5, 10}; // initial coordinates of cylinder
 
 face vector muv[];
 
@@ -30,10 +27,12 @@ p[right]   = dirichlet (0);
 pf[right]  = dirichlet (0);
 
 u.n[top] = neumann (0);
+// u.t[top] = dirichlet (U0);
 p[top] = neumann (0);
 pf[top] = neumann (0);
 
 u.n[bottom] = neumann (0);
+// u.t[bottom] = dirichlet (U0);
 p[bottom] = neumann (0);
 pf[bottom] = neumann (0);
 
@@ -43,42 +42,35 @@ double SDF (double x, double y) {
 
 int main() {
   size(L0);
-  init_grid (2 << (LEVEL - 4));
+  init_grid (1 << (LEVEL - 3));
   mu = muv;
-  TOLERANCE = 1.e-5 [*]; 
+  TOLERANCE = 1.e-6 [*]; 
 
-  j = 10;
-  Re = 1.;
+  Re = 1;
   run();
 
-  j = 11;
-  Re = 2.;
+  Re = 2;
   run();
 
-  j = 12;
-  Re = 5.;
+  Re = 5;
   run();
   
-  j = 13;
-  Re = 10.;
+  Re = 10;
   run();
   
-  j = 14;
-  Re = 20.;
+  Re = 20;
   run();
 
-  j = 15;
-  Re = 40.;
+  Re = 40;
   run();
 
-  j = 16;
-  Re = 80;
+  Re = 50;
   run();
 }
 
 
 event init (t = 0) {
-  mask(y > 6 ? top: y < -6 ? bottom : none);
+  // mask(y > 6 ? top: y < -6 ? bottom : none);
   refine (level <= LEVEL*(1. - sqrt(fabs(sq(x-ci.x) + sq(y-ci.y) - sq(D/2.)))/2.));
   solid (cs, fs, sq(x - ci.x) + sq(y - ci.y) - sq(D/2));
   foreach()
@@ -123,7 +115,7 @@ event logfile (i++){
   }
 */
   fprintf (stderr, "%d %g %d %d %d %d %d %g %g\n",
-	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL);
+	   i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL);
 	   
 }
 
@@ -133,7 +125,7 @@ event snapshot (t = t_end) {
   vorticity (u, omega);
 
   char name[80];
-  sprintf (name, "vort-%d", j);
+  sprintf (name, "vort-%d", Re);
   FILE * fp1 = fopen (name, "w");
   view (fov = 2, tx = -0.375, ty = -0.20,
 	width = 800, height = 400); 
@@ -149,12 +141,12 @@ event adapt (i++) {
 
 event profile (t = t_end) {
   int k = 0;
-  double delta = 15/(pow(2,LEVEL));
+  double delta = L0/(pow(2,LEVEL));
   char name[80];
 
-  sprintf (name, "vprofx1-%d", j); // x = 4.8125
+  sprintf (name, "vprofx1-%d", Re); // x = 4.8125
   FILE * fv = fopen(name, "w");
-  for(double i = 0; i <= 6; i += delta) {
+  for(double i = 0; i <= L0; i += delta) {
     foreach_point (4.8125, i) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
@@ -168,10 +160,10 @@ event profile (t = t_end) {
   fflush (fv);
   fclose (fv);
 
-  sprintf (name, "vprofx2-%d", j); // x = 5
+  sprintf (name, "vprofx2-%d", Re); // x = 5
   FILE * fv1 = fopen(name, "w");
-  for(double i = 0; i <= 6; i += delta) {
-    foreach_point (5, i) {
+  for(double i = 0; i <= L0; i += delta) {
+    foreach_point (ci.x, i) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
@@ -184,9 +176,9 @@ event profile (t = t_end) {
   fflush (fv1);
   fclose (fv1);
 
-  sprintf (name, "vprofx3-%d", j); // x = 10
+  sprintf (name, "vprofx3-%d", Re); // x = 10
   FILE * fv2 = fopen(name, "w");
-  for(double i = 0; i <= 6; i += delta) {
+  for(double i = 0; i <= L0; i += delta) {
     foreach_point (10, i) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
@@ -200,10 +192,10 @@ event profile (t = t_end) {
   fflush (fv2);
   fclose (fv2);
 
-  sprintf (name, "vprofy1-%d", j); // y = 3
+  sprintf (name, "vprofy1-%d", Re); // y = 3
   FILE * fv3 = fopen(name, "w");
-  for(double i = 0; i <= 15; i += delta) {
-    foreach_point (i, 3) {
+  for(double i = 0; i <= L0; i += delta) {
+    foreach_point (i, ci.y) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
@@ -216,10 +208,10 @@ event profile (t = t_end) {
   fflush (fv3);
   fclose (fv3);
 
-  sprintf (name, "vprofy2-%d", j); // y = 3.1875
+  sprintf (name, "vprofy2-%d", Re); // y = 3.1875
   FILE * fv4 = fopen(name, "w");
-  for(double i = 0; i <= 15; i += delta) {
-    foreach_point (i, 3.1875) {
+  for(double i = 0; i <= L0; i += delta) {
+    foreach_point (i, ci.y+(delta*10)) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
@@ -234,6 +226,26 @@ event profile (t = t_end) {
  
 }
 
+int count = 0;
+event frequency (i++) {
+  if (t >= tf_start) {
+    char name[80];
+    sprintf (name, "freq-7.5.dat");
+    FILE * fp = fopen (name, "a");
+    foreach_point(7.500, ci.y) {
+      fprintf (fp, "%d %g %g %g %g %g %g\n", count, x, y, t, u.x[], u.y[], p[]);
+    }
+    fclose (fp);
+
+    sprintf (name, "freq-10.dat");
+    FILE * fp1 = fopen (name, "a");
+    foreach_point(10.000, ci.y) {
+      fprintf (fp1, "%d %g %g %g %g %g %g\n", count, x, y, t, u.x[], u.y[], p[]);
+    }
+    fclose (fp1);
+    count++;
+  }
+}
 
 event movie (t += 0.01; t <= t_end) {
 }
@@ -241,7 +253,7 @@ event movie (t += 0.01; t <= t_end) {
 event stop (t = t_end) {
   static FILE * fp = fopen("perf", "w");
   timing s = timer_timing (perf.gt, iter, perf.tnc, NULL);
-  fprintf (fp, "%d\t%g\t%d\t%g\n", j, s.real, i, s.speed);
+  fprintf (fp, "%d\t%g\t%d\t%g\n", Re, s.real, i, s.speed);
   fflush (fp);
   return 1;
 }

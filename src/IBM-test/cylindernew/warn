@@ -1,17 +1,19 @@
-.qccV5nkKC/cylindernew.c:1:7: warning: line number out of range
+.qccIB6N7m/cylindernew.c:1:7: warning: line number out of range
 cylindernew-cpp.c: warning: line number out of range
 <built-in>: warning: line number out of range
 /usr/include/stdc-predef.h:1:7: warning: line number out of range
-./../immersed.h: In function ‘solid_force’:
-./../immersed.h:145:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h:145:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h:224:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
-./../immersed.h:224:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h: In function ‘printx’:
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:103:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h: In function ‘end_timestep_0’:
+./../immersed.h:136:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:136:14: warning: unused variable ‘area’ [-Wunused-variable]
 cylindernew.c: In function ‘logfile’:
-cylindernew.c:115:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylindernew.c:111:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
-cylindernew.c:115:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylindernew.c:111:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
-cylindernew.c:104:9: warning: unused variable ‘total’ [-Wunused-variable]
+cylindernew.c:121:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernew.c:117:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernew.c:121:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernew.c:117:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylindernew.c:110:9: warning: unused variable ‘total’ [-Wunused-variable]
+cylindernew.c:109:8: warning: unused variable ‘name’ [-Wunused-variable]
 cylindernew.c: In function ‘profile’:
-cylindernew.c:245:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylindernew.c:256:14: warning: unused variable ‘area’ [-Wunused-variable]

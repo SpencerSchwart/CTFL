@@ -4,17 +4,18 @@
 
 #define L0 40.
 #define D 0.50
-#define LEVEL 12
+#define LEVEL 11
 
-int maxlevel = 12;
+int maxlevel = 11;
 int Re;
 double U0 =  1.; // inlet velocity
-double t_end = 40;
-coord ci = {5, 10}; // initial coordinates of cylinder
+double t_end = 50;
+double tf_start = 25;
+coord ci = {5, L0/2}; // initial coordinates of cylinder
 coord vc = {0, 0}; // velocity of cylinder
 coord xc = {0, 0};
 const double A = 0.2*D;
-double freq = 0.52;
+double freq = 0.3;
 
 scalar vof[];
 face vector sf[];
@@ -45,9 +46,9 @@ int main() {
   size(L0);
   init_grid (2 << (6));
   mu = muv;
-  TOLERANCE = 1.e-5; 
-  // DT = 0.003;
-  CFL = 0.6;
+  TOLERANCE = 1.e-7; 
+  DT = 0.003;
+  // CFL = 0.6;
 
   Re = 185;
   run();
@@ -56,8 +57,12 @@ int main() {
 
 event moving_cylinder (i++) {
   xc.y = A*sin(2*M_PI*freq*t);
-  vc.y = 2*M_PI*freq*A*cos(2*M_PI*freq*t); 
+  vc.y = 2*M_PI*freq*A*cos(2*M_PI*freq*(t + dt)); 
   solid (vof, sf, - sq(x - ci.x - xc.x) - sq(y - ci.y - xc.y) + sq(D/2));
+}
+
+event init (t = 0) {
+  refine (vof[] > 0 && vof[] < 1 && level < maxlevel);
 }
 
 
@@ -68,6 +73,8 @@ event properties (i++) {
 }
 
 scalar e[];
+vector ef[];
+vector fc_p[];
 vector Uc[];
 vector ub[];
 double avgCD = 0, avgCL = 0;
@@ -81,17 +88,16 @@ event logfile (i++){
   coord Fp = {0,0};
   immersed_forcev2 (vof, &Fp);
   double CD = (Fp.x)/(0.5*sq(U0)*(D));
-  avgCD += t > 2? CD: 0;
+  avgCD += t > tf_start? CD: 0;
   double CL = (Fp.y)/(0.5*sq(U0)*(D));
-  avgCL += t > 2? CL: 0;
-  count += t > 2? 1:0;
+  avgCL += t > tf_start? CL: 0;
+  count += t > tf_start? 1:0;
 
   char name[80];
-  sprintf (name, "avg_v.txt");
-  FILE * fpv = fopen(name, "a");
   coord total = {0};
-
+  coord avgf = {0};
   int counter = 0;
+  int counter1 = 0;
   coord usum = {0};
   foreach() {
     if (vof[] > 0 && vof[] < 1) {
@@ -125,16 +131,30 @@ event logfile (i++){
         Uc.x[] = 0;
         ub.x[] = 0;
       }
+
+    if (fc.y[] || fc.x[]) {
+      avgf.x += fc.x[];
+      avgf.y += fc.y[];
+      counter1++;
+    }
+    foreach_dimension() {
+      ef.x[] = fabs(fc.x[] - fc_p.x[]);
+      fc_p.x[] = fc.x[];
+    }
   }
 
   norm n = normf (e);
   double uavg_x = usum.x/counter;
   double uavg_y = usum.y/counter;
 
-  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g %g %g %g %g\n",
+  double sumf = sqrt(sq(avgf.x) + sq(avgf.y));
+  avgf.x /= counter;
+  avgf.y /= counter;
+
+  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
 	   i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax,
 	   CD, avgCD/(count + 1e-6), CL, avgCL/(count + 1e-6),
-	   uavg_x, uavg_y, xc.y, vc.y, n.avg, n.max);
+	   uavg_x, uavg_y, xc.y, vc.y, n.avg, n.max, sumf, avgf.x, avgf.y);
 }
 
 event profile (t = t_end) {
@@ -168,22 +188,23 @@ event profile (t = t_end) {
   }
   fflush (fv5);
   fclose (fv5);
-
 }
 
-
-event snapshot (t = t_end) {
+event movie (t += 0.1; t <= t_end) {
   scalar omega[];
   vorticity (u, omega);
-
   char name[80];
-  sprintf (name, "vort-%d.png", Re);
+  sprintf (name, "vort-%g.png", t);
   FILE * fp1 = fopen (name, "w");
-  view (fov = 2, tx = -0.375, ty = -0.20,
-	width = 800, height = 400); 
-  isoline ("omega", n = 15, min = -3, max = 3);
+  view (fov = 2, tx = -.190, ty = -.5, bg = {1,1,1,},
+        width = 1024, height = 512);
+  clear();
+  isoline ("omega", n = 15, min = -10, max = 10);
   draw_vof ("vof", "sf", filled = 1, lw = 5);
+  squares ("omega", map = cool_warm, min = -10, max = 10);
   save (fp = fp1);
+  fflush (fp1);
+  fclose (fp1);
 }
 
 

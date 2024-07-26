@@ -1,0 +1,22 @@
+.qccDVf6Ux/cylinder-oscv2.c:1:7: warning: line number out of range
+cylinder-oscv2-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../immersed.h: In function ‘printx’:
+./../immersed.h:112:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:112:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h: In function ‘solid_force’:
+./../immersed.h:144:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:144:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../immersed.h:217:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../immersed.h:217:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+cylinder-oscv2.c: In function ‘logfile’:
+cylinder-oscv2.c:109:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv2.c:105:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylinder-oscv2.c:109:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv2.c:105:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
+cylinder-oscv2.c:97:9: warning: unused variable ‘total’ [-Wunused-variable]
+cylinder-oscv2.c:96:8: warning: unused variable ‘name’ [-Wunused-variable]
+cylinder-oscv2.c: In function ‘profile’:
+cylinder-oscv2.c:172:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv2.c:161:10: warning: unused variable ‘delta’ [-Wunused-variable]
