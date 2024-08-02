@@ -1,5 +1,5 @@
-#ifndef BASILISK_HEADER_19
-#define BASILISK_HEADER_19
+#ifndef BASILISK_HEADER_20
+#define BASILISK_HEADER_20
 #line 1 "./../immersed.h"
 #include "fractions.h"
 
@@ -136,7 +136,7 @@ event end_timestep (i++) {
       coord m = {x, y};
       coord n = interface_normal (point, vof);
       double alpha = plane_alpha (vof[], n);
-      double area = plane_area_center(n, alpha, &pc);
+      plane_area_center(n, alpha, &pc);
 
       foreach_dimension() {
         pc.x = m.x + pc.x*Delta;
@@ -174,8 +174,8 @@ event end_timestep (i++) {
     }
     else
       foreach_dimension() {
-	Fc.x[] = Fd.x[] = 0; 
-	Pc.x[] = nv.x[] = 0;
+	    Fc.x[] = Fd.x[] = 0; 
+	    Pc.x[] = nv.x[] = 0;
       }
 
     printx (point, 1, i);
@@ -227,7 +227,7 @@ event end_timestep (i++) {
     printx (point, 3, i);
   }
   foreach_dimension()
-    correct.x = den.x != 0? num.x/den.x: 1;
+    correct.x = den.x != 0? 1: 1;
   // fprintf (stderr, "|| correct.x=%g correct.y=%g\n", correct.x, correct.y);
 
   // spread F_c to f_c with correction

@@ -1,7 +1,7 @@
-#ifndef BASILISK_HEADER_22
-#define BASILISK_HEADER_22
+#ifndef BASILISK_HEADER_19
+#define BASILISK_HEADER_19
 #line 1 "./../interfaceforce.h"
-extern scalar airfoil;
+extern scalar vof;
 extern face vector sf;
 
 void boundary_cells (scalar c, scalar ink) {
@@ -27,12 +27,12 @@ static inline double dirichlet_gradiento_x (Point point, scalar s, scalar cs,
 					   coord n, coord p, double bc,
 					   double * coef)
 {
-  foreach_dimension()
-    n.x = - n.x;
+//  foreach_dimension()
+//    n.x = - n.x;
   double d[2], v[2] = {nodata,nodata};
   bool defined = true;
   foreach_dimension()
-    if (defined && !sf.x[(n.x > 0.)])
+    if (defined && sf.x[(n.x > 0.)])
       defined = false;
   if (defined)
     for (int l = 0; l <= 1; l++) {
@@ -42,9 +42,10 @@ static inline double dirichlet_gradiento_x (Point point, scalar s, scalar cs,
       int j = y1 > 0.5 ? 1 : y1 < -0.5 ? -1 : 0;
       y1 -= j;
 #if dimension == 2
-      if (sf.x[i + (i < 0),j] && sf.y[i,j] && sf.y[i,j+1] &&
-	  cs[i,j-1] && cs[i,j] && cs[i,j+1])
-	v[l] = quadratic (y1, (s[i,j-1]), (s[i,j]), (s[i,j+1]));
+   if (cs[i,j-1] < 0.5 && cs[i,j] < 0.5 && cs[i,j+1] < 0.5) {
+	    v[l] = quadratic (y1, (s[i,j-1]), (s[i,j]), (s[i,j+1]));
+        fprintf(stderr, "hi\n");
+    }
 #else // dimension == 3
       double z = p.z + d[l]*n.z;
       int k = z > 0.5 ? 1 : z < -0.5 ? -1 : 0;
@@ -66,8 +67,10 @@ static inline double dirichlet_gradiento_x (Point point, scalar s, scalar cs,
 		     quadratic (y1,
 				(s[i,j-1,k+1]), (s[i,j,k+1]), (s[i,j+1,k+1])));
 #endif // dimension == 3
-      else
-	break;
+      else {
+      fprintf(stderr, "bye\n");
+	    break;
+        }
     }
   if (v[0] == nodata) {
     d[0] = max(1e-3, fabs(p.x/n.x));
@@ -103,8 +106,8 @@ double dirichlet_gradiento (Point point, scalar s, scalar cs,
 
 double embed_geometryo (Point point, coord * b, coord * n)
 {
-  *n = facet_normal (point, airfoil, sf);
-  double alpha = plane_alpha (airfoil[], *n);
+  *n = facet_normal (point, vof, sf);
+  double alpha = plane_alpha (vof[], *n);
   double area = plane_area_center (*n, alpha, b);
   normalize (n);
   return area;
@@ -114,7 +117,7 @@ double embed_interpolateo (Point point, scalar s, coord p)
 {
   assert (dimension == 2);
   int i = sign(p.x), j = sign(p.y);
-  if (airfoil[i] && airfoil[0,j] && airfoil[i,j])
+  if (vof[i] && vof[0,j] && vof[i,j])
     // bilinear interpolation when all neighbors are defined
     return ((s[]*(1. - fabs(p.x)) + s[i]*fabs(p.x))*(1. - fabs(p.y)) + 
 	    (s[0,j]*(1. - fabs(p.x)) + s[i,j]*fabs(p.x))*fabs(p.y));
@@ -124,9 +127,9 @@ double embed_interpolateo (Point point, scalar s, coord p)
     double val = s[];
     foreach_dimension() {
       int i = sign(p.x);
-      if (airfoil[i])
+      if (vof[i])
 	val += fabs(p.x)*(s[i] - s[]);
-      else if (airfoil[-i])
+      else if (vof[-i])
 	val += fabs(p.x)*(s[] - s[-i]);
     }
     return val;
@@ -139,12 +142,11 @@ coord embed_gradiento (Point point, vector u, coord p, coord n)
 {
   coord dudn;
   foreach_dimension() {
-    bool dirichlet = false;
-    double vb = u.x.boundary[embed] (point, point, u.x, &dirichlet);
-    // double vb = 1.;
+    bool dirichlet = true;
+    double vb = 0.;
     if (dirichlet) {
       double val;
-      dudn.x = dirichlet_gradiento (point, u.x, airfoil, n, p, vb, &val);
+      dudn.x = dirichlet_gradiento (point, u.x, vof, n, p, vb, &val);
     }
     else // Neumann
       dudn.x = vb;
@@ -192,7 +194,7 @@ void interface_force (scalar c, scalar p, vector u,
 
 double embed_vorticityo (Point point, vector u, coord p, coord n)
 {
-  coord dudn = embed_gradient (point, u, p, n);
+  coord dudn = embed_gradiento (point, u, p, n);
 
   return dudn.y*n.x - dudn.x*n.y;
 }

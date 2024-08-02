@@ -4,11 +4,11 @@
 
 #define L0 20
 #define D 0.5
-#define LEVEL 10
+#define LEVEL 11
 
 int Re;
 double U0 =  1.0; // inlet velocity
-double t_end = 20 [0,1];
+double t_end = 40 [0,1];
 double tf_start = 20 [0,1];
 double xi = 4.8266;
 double yi = 3.0835;
@@ -27,12 +27,10 @@ p[right]   = dirichlet (0);
 pf[right]  = dirichlet (0);
 
 u.n[top] = neumann (0);
-// u.t[top] = dirichlet (U0);
 p[top] = neumann (0);
 pf[top] = neumann (0);
 
 u.n[bottom] = neumann (0);
-// u.t[bottom] = dirichlet (U0);
 p[bottom] = neumann (0);
 pf[bottom] = neumann (0);
 
@@ -46,9 +44,9 @@ int main() {
   mu = muv;
   TOLERANCE = 1.e-6 [*]; 
 
-  Re = 1;
+  Re = 40;
   run();
-
+/*
   Re = 2;
   run();
 
@@ -66,6 +64,7 @@ int main() {
 
   Re = 50;
   run();
+  */
 }
 
 
@@ -120,19 +119,6 @@ event logfile (i++){
 }
 
 
-event snapshot (t = t_end) {
-  scalar omega[];
-  vorticity (u, omega);
-
-  char name[80];
-  sprintf (name, "vort-%d", Re);
-  FILE * fp1 = fopen (name, "w");
-  view (fov = 2, tx = -0.375, ty = -0.20,
-	width = 800, height = 400); 
-  isoline ("omega", n = 15, min = -3, max = 3);
-  draw_vof ("cs", "fs", filled = 1, lw = 5);
-  save (fp = fp1);
-}
 
 event adapt (i++) {
   adapt_wavelet ({cs,u}, (double[]){1.e-2,3e-3,3e-3},
@@ -154,7 +140,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
     }
   }
   fflush (fv);
@@ -163,14 +149,14 @@ event profile (t = t_end) {
   sprintf (name, "vprofx2-%d", Re); // x = 5
   FILE * fv1 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (ci.x, i) {
+    foreach_point (5, i) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv1, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv1, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv1);
@@ -186,13 +172,13 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv2, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv2, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
     }
   }
   fflush (fv2);
   fclose (fv2);
 
-  sprintf (name, "vprofy1-%d", Re); // y = 3
+  sprintf (name, "vprofy1-%d", Re); // y = L0/2
   FILE * fv3 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
     foreach_point (i, ci.y) {
@@ -202,7 +188,7 @@ event profile (t = t_end) {
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv3, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv3, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv3);
@@ -211,19 +197,109 @@ event profile (t = t_end) {
   sprintf (name, "vprofy2-%d", Re); // y = 3.1875
   FILE * fv4 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (i, ci.y+(delta*10)) {
+    foreach_point (i, ci.y+(delta*15)) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv4, "%d %g %g %g %g\n", k, x, y, u.x[], u.y[]);
+      fprintf (fv4, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv4);
   fclose (fv4);
- 
+
+  sprintf (name, "surface-%d", Re);
+  FILE * fv5 = fopen (name, "w");
+  foreach() {
+    if (cs[] > 0. && cs[] < 1.) {
+      coord b, n;
+      embed_geometry (point, &b, &n);
+      double xe = x + b.x*Delta, ye = y + b.y*Delta;
+
+      double theta = atan2 ((ye - ci.y), (xe - ci.x)) * (180/M_PI);
+      double cp = embed_interpolate (point, p, b) / (0.5 * sq(U0));
+      fprintf (fv5, "%g %g\n", theta, cp);
+    }
+  }
+  fflush (fv5);
+  fclose (fv5);
+
+  scalar boundaryVelocity[];
+  fraction (boundaryVelocity, - sq(x - ci.x) - sq(y - ci.y) + sq(0.51758/2));
+  sprintf (name, "surfaceVelocity1-%d", Re);
+  FILE * fv6 = fopen (name, "w");
+  foreach()
+    if (boundaryVelocity[] > 0 && boundaryVelocity[] < 1) {
+      double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
+      fprintf (fv6, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
+    }
+  fflush (fv6);
+  fclose (fv6);
+
+  fraction (boundaryVelocity, - sq(x - ci.x) - sq(y - ci.y) + sq(0.53516/2));
+  sprintf (name, "surfaceVelocity2-%d", Re);
+  FILE * fv7 = fopen (name, "w");
+  foreach()
+    if (boundaryVelocity[] > 0 && boundaryVelocity[] < 1) {
+      double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
+      fprintf (fv7, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
+    }
+  fflush (fv7);
+  fclose (fv7);
+}
+
+event snapshot (t = t_end) {
+  scalar omega[];
+  vorticity (u, omega);
+
+  char name[80];
+  sprintf (name, "vort_final-%d.png", Re);
+  view (fov = 2, tx = -0.275, ty = -0.50,
+	width = 3000, height = 1500); 
+  isoline ("omega", n = 15, min = -3, max = 3);
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  save (name);
+
+  sprintf (name, "xvelo-%d.png", Re);
+  clear();
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  squares ("u.x", min = 0, max = 1.5, map = cool_warm);
+  save (name);
+
+  sprintf (name, "yvelo-%d.png", Re);
+  clear();
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  squares ("u.y", min = -0.5, max = 0.5, map = cool_warm);
+  save (name);
+
+  sprintf (name, "pressure-%d.png", Re);
+  clear();
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  squares ("u.y", min = -0.5, max = 0.5, map = cool_warm);
+  save (name);
+
+  sprintf (name, "vectors-%d.png", Re);
+  clear();
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  vectors ("u", scale =  0.01);
+  squares ("u.x", min = -0.5, max = 1, map = cool_warm);
+  save (name);
+
+  sprintf (name, "pressureiso-%d.png", Re);
+  clear();
+  view (fov = 1, tx = -0.275, ty = -0.50,
+	    width = 3000, height = 1500);
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  isoline ("p", n = 20, min = -0.5, max = 0.5);
+  save (name);
+
+  sprintf (name, "veloiso-%d.png", Re);
+  clear();
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  isoline ("u.x", n = 25, min = -.1, max = 1.15);
+  save (name);
 }
 
 int count = 0;

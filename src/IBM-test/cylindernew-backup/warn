@@ -1,0 +1,10 @@
+.qcc5YkDpD/cylindernew-backup.c:1:7: warning: line number out of range
+cylindernew-backup-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘quadratic_interpolation’:
+./../ibm-utils.h:107:16: warning: unused variable ‘x1’ [-Wunused-variable]
+cylindernew-backup.c: In function ‘profile’:
+cylindernew-backup.c:191:14: warning: unused variable ‘area’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘quadratic_interpolation’:
+./../ibm-utils.h:110:1: warning: control reaches end of non-void function [-Wreturn-type]
