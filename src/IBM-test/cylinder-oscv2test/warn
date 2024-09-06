@@ -1,0 +1,17 @@
+.qccJkLeMK/cylinder-oscv2test.c:1:7: warning: line number out of range
+cylinder-oscv2test-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:112:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:112:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_force’:
+./../immersed-new.h:172:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:172:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev2’:
+./../immersed-new.h:212:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:212:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev3’:
+./../immersed-new.h:253:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:253:19: warning: unused variable ‘marker’ [-Wunused-variable]

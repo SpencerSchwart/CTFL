@@ -1,9 +1,8 @@
-.qccmz8u93/pitching.c:1:7: warning: line number out of range
+.qccL2GlvJ/pitching.c:1:7: warning: line number out of range
 pitching-cpp.c: warning: line number out of range
 <built-in>: warning: line number out of range
 /usr/include/stdc-predef.h:1:7: warning: line number out of range
-./../immersed.h: In function ‘solid_force’:
-./../immersed.h:145:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h:145:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h:224:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
-./../immersed.h:224:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:111:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:111:10: warning: unused variable ‘defined’ [-Wunused-variable]

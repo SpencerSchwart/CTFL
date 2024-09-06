@@ -1,5 +1,5 @@
-#ifndef BASILISK_HEADER_20
-#define BASILISK_HEADER_20
+#ifndef BASILISK_HEADER_19
+#define BASILISK_HEADER_19
 #line 1 "./../immersed-test.h"
 #include "fractions.h"
 #include "ibm-utils.h"
@@ -9,14 +9,13 @@ extern scalar vof;
 extern face vector sf;
 extern int maxlevel;
 
-vector cellForce[];
-vector markerForce[];
-vector desiredForce[];
-vector markerCoord[];
+vector desiredForce[];  // force calculated at the marker point
+vector cellForce[];     // force located at the cell center (after spreading)
+vector markerCoord[];   // field to store the coordinates of all marker points
 
 event end_timestep (i++)
 {
-    trash({cellForce, markerForce, desiredForce, markerCoord});
+    trash({cellForce, desiredForce, markerCoord});
 
     // 1. calculate the force at the marker point
     foreach() {
@@ -83,28 +82,42 @@ event end_timestep (i++)
                 u.x[] = vc.x;
 }
 
-double immersed_interpolate (Point point, scalar s, coord p)
+
+void immersed_force (scalar c, scalar p, vector u,
+			face vector mu, coord * Fp, coord * Fmu)
 {
-  assert (dimension == 2);
-  int i = sign(p.x), j = sign(p.y);
-  if (vof[i] && vof[0,j] && vof[i,j])
-    // bilinear interpolation when all neighbors are defined
-    return ((s[]*(1. - fabs(p.x)) + s[i]*fabs(p.x))*(1. - fabs(p.y)) + 
-	    (s[0,j]*(1. - fabs(p.x)) + s[i,j]*fabs(p.x))*fabs(p.y));
-  else {
-    // linear interpolation with gradients biased toward the
-    // cells which are defined
-    double val = s[];
-    foreach_dimension() {
-      int i = sign(p.x);
-      if (vof[i])
-	val += fabs(p.x)*(s[i] - s[]);
-      else if (vof[-i])
-	val += fabs(p.x)*(s[] - s[-i]);
+    double Fn = 0.;
+    coord Fps = {0}, Fmus = {0};
+
+    foreach () {
+
+        if (c[] > 1e-6 && c[] < 1. - 1e-6) {
+      
+            coord n, b;
+            double area = embed_geometry (point, &b, &n);
+            area *= pow (Delta, dimension - 1);
+
+            Fn = area*embed_interpolate (point, p, b);
+            foreach_dimension()
+	            Fps.x -= Fn*n.x;
+
+            if (constant(mu.x) != 0.) {
+	            double mua = 0., fa = 0.;
+                foreach_dimension() {
+                    mua += mu.x[] + mu.x[1];
+                    fa  += fm.x[] + fm.x[1];
+                }
+            mua /= fa;
+        	assert (dimension == 2);
+            coord dudn = embed_gradient (point, u, b, n, vc);
+        	foreach_dimension()
+                Fmus.x -= area*mua*(dudn.x*(sq(n.x) + 1.) + dudn.y*n.x*n.y);
+            }
+        }
     }
-    return val;
-  }
+    *Fp = Fps; *Fmu = Fmus;
 }
+
 
 /*
 void ibm_force (scalar p, vector u, face vector mu, coord * Fp, coord * Fmu)

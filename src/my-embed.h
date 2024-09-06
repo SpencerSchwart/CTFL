@@ -415,7 +415,7 @@ For degenerate cases, a non-zero value of *coef* is returned and
 foreach_dimension()
 static inline double dirichlet_gradient_x (Point point, scalar s, scalar cs,
 					   coord n, coord p, double bc,
-					   double * coef)
+					   double * coef, int print)
 {
   foreach_dimension()
     n.x = - n.x;
@@ -473,28 +473,35 @@ static inline double dirichlet_gradient_x (Point point, scalar s, scalar cs,
   /**
   For non-degenerate cases, the gradient is obtained using either
   second- or third-order estimates. */
-  
+  double gradient;
   *coef = 0.;
   if (v[1] != nodata) // third-order gradient
-    return (d[1]*(bc - v[0])/d[0] - d[0]*(bc - v[1])/d[1])/((d[1] - d[0])*Delta);
-  return (bc - v[0])/(d[0]*Delta); // second-order gradient
+    gradient = (d[1]*(bc - v[0])/d[0] - d[0]*(bc - v[1])/d[1])/((d[1] - d[0])*Delta); 
+  else
+    gradient = (bc - v[0])/(d[0]*Delta); // second-order gradient
+
+  
+  // if (print == 1) fprintf (stderr, "|| x=%g y=%g d[0]=%g d[1]=%g v[0]=%g v[1]=%g bc=%g grad=%g\n",
+  //                  x, y, d[0], d[1], v[0], v[1], bc, gradient);
+
+  return gradient;
 }
 
 double dirichlet_gradient (Point point, scalar s, scalar cs,
-			   coord n, coord p, double bc, double * coef)
+			   coord n, coord p, double bc, double * coef, int print)
 {
 #if dimension == 2
   foreach_dimension()
     if (fabs(n.x) >= fabs(n.y))
-      return dirichlet_gradient_x (point, s, cs, n, p, bc, coef);
+      return dirichlet_gradient_x (point, s, cs, n, p, bc, coef, print);
 #else // dimension == 3
   if (fabs(n.x) >= fabs(n.y)) {
     if (fabs(n.x) >= fabs(n.z))
-      return dirichlet_gradient_x (point, s, cs, n, p, bc, coef);
+      return dirichlet_gradient_x (point, s, cs, n, p, bc, coef, print);
   }
   else if (fabs(n.y) >= fabs(n.z))
-    return dirichlet_gradient_y (point, s, cs, n, p, bc, coef);
-  return dirichlet_gradient_z (point, s, cs, n, p, bc, coef);
+    return dirichlet_gradient_y (point, s, cs, n, p, bc, coef, print);
+  return dirichlet_gradient_z (point, s, cs, n, p, bc, coef, print);
 #endif // dimension == 3
   return nodata;
 }
@@ -517,7 +524,7 @@ coord embed_gradient (Point point, vector u, coord p, coord n)
     double vb = u.x.boundary[embed] (point, point, u.x, &dirichlet);
     if (dirichlet) {
       double val;
-      dudn.x = dirichlet_gradient (point, u.x, cs, n, p, vb, &val);
+      dudn.x = dirichlet_gradient (point, u.x, cs, n, p, vb, &val, 1);
     }
     else // Neumann
       dudn.x = vb;
@@ -546,6 +553,9 @@ $$
 These two vectors are computed by the *embed_force()* function.
 */
 
+vector frictionDrag[];
+vector pressureDrag[];
+
 trace
 void embed_force (scalar p, vector u, face vector mu, coord * Fp, coord * Fmu)
 {
@@ -562,8 +572,10 @@ void embed_force (scalar p, vector u, face vector mu, coord * Fp, coord * Fmu)
       double area = embed_geometry (point, &b, &n);
       area *= pow (Delta, dimension - 1);
       double Fn = area*embed_interpolate (point, p, b);
-      foreach_dimension()
-	Fps.x += Fn*n.x;
+      foreach_dimension() {
+    	Fps.x += Fn*n.x;
+        pressureDrag.x[] = Fn*n.x;
+      }
 
       /**
       To compute the viscous force, we first need to retrieve the
@@ -641,8 +653,11 @@ void embed_force (scalar p, vector u, face vector mu, coord * Fp, coord * Fmu)
         coord dudn = embed_gradient (point, u, b, n);
 
 #if dimension == 2
-	foreach_dimension()
+	foreach_dimension() {
 	  Fmus.x -= area*mua*(dudn.x*(sq(n.x) + 1.) + dudn.y*n.x*n.y);
+      frictionDrag.x[] = -(area*mua*(dudn.x*(sq(n.x) + 1.) + dudn.y*n.x*n.y));
+
+    }
 #else // dimension == 3
         foreach_dimension()
 	  Fmus.x -= area*mua*(dudn.x*(sq (n.x) + 1.) +
@@ -738,7 +753,7 @@ double embed_flux (Point point, scalar s, face vector mu, double * val)
   double coef = 0.;
   if (dirichlet) {
     normalize (&n);
-    grad = dirichlet_gradient (point, s, cs, n, p, grad, &coef);
+    grad = dirichlet_gradient (point, s, cs, n, p, grad, &coef, 0);
   }
 
   /**

@@ -1,0 +1,35 @@
+In file included from /home/spencer/basilisk/src/utils.h:433,
+                 from /home/spencer/basilisk/src/run.h:11,
+                 from /home/spencer/basilisk/src/navier-stokes/centered.h:27,
+                 from cylindernewtest.c:1:
+/home/spencer/basilisk/src/display.h:789:15: error: operator '-' has no right operand
+/home/spencer/basilisk/src/display.h:716: warning: Basilisk C parse error near `int display_play = - < 0 ? -1 : 0'
+.qcchDPrq2/cylindernewtest.c:1:7: warning: line number out of range
+/home/spencer/basilisk/CTFL/src/IBM-test/.qcchDPrq2//:1:7: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+/home/spencer/basilisk/src/display.h:716:22: error: expected expression before ‘<’ token
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:113:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:113:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘ibm_dirichlet_gradientv2’:
+./../ibm-utils.h:326:9: warning: variable ‘type’ set but not used [-Wunused-but-set-variable]
+./../immersed-new.h: In function ‘immersed_force’:
+./../immersed-new.h:125:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:125:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev2’:
+./../immersed-new.h:164:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:164:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev3’:
+./../immersed-new.h:207:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:207:19: warning: unused variable ‘marker’ [-Wunused-variable]
+cylindernewtest.c: In function ‘logfile’:
+cylindernewtest.c:94:26: warning: unused variable ‘Fmu4’ [-Wunused-variable]
+cylindernewtest.c:94:20: warning: unused variable ‘Fmu3’ [-Wunused-variable]
+cylindernewtest.c:94:14: warning: unused variable ‘Fmu2’ [-Wunused-variable]
+cylindernewtest.c:93:23: warning: unused variable ‘Fp4’ [-Wunused-variable]
+cylindernewtest.c:93:18: warning: unused variable ‘Fp3’ [-Wunused-variable]
+cylindernewtest.c:93:13: warning: unused variable ‘Fp2’ [-Wunused-variable]
+cylindernewtest.c: In function ‘profile’:
+cylindernewtest.c:206:14: warning: unused variable ‘area’ [-Wunused-variable]

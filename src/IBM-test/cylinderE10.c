@@ -1,18 +1,18 @@
-#include "embed.h"
+#include "../my-embed.h"
 #include "navier-stokes/centered.h"
 #include "view.h"
 
-#define L0 20
+#define L0 15
 #define D 0.5
 #define LEVEL 11
 
 int Re;
-double U0 =  1.0; // inlet velocity
-double t_end = 40 [0,1];
+double U0 =  1.; // inlet velocity
+double t_end = 50 [0,1];
 double tf_start = 20 [0,1];
 double xi = 4.8266;
 double yi = 3.0835;
-coord ci = {5, 10}; // initial coordinates of cylinder
+coord ci = {L0/4, L0/2}; // initial coordinates of cylinder
 
 face vector muv[];
 
@@ -43,8 +43,12 @@ int main() {
   init_grid (1 << (LEVEL - 3));
   mu = muv;
   TOLERANCE = 1.e-6 [*]; 
+  DT = 0.01;
 
   Re = 40;
+  run();
+
+  Re = 185;
   run();
 /*
   Re = 2;
@@ -76,8 +80,7 @@ event init (t = 0) {
     u.x[] = cs[] ? U0 : 0.;
   
   u.n[embed] = dirichlet(0);
-  u.t[embed] = dirichlet(0);  
-
+  u.t[embed] = dirichlet(0);
 }
 
 
@@ -88,7 +91,7 @@ event properties (i++) {
 }
 
 
-event logfile (i++){
+event logfile (i++; t <= t_end){
   coord Fp, Fmu;
   embed_force (p, u, mu, &Fp, &Fmu);
   double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
@@ -113,8 +116,8 @@ event logfile (i++){
 
   }
 */
-  fprintf (stderr, "%d %g %d %d %d %d %d %g %g\n",
-	   i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL);
+  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g\n",
+	   i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL, Fp.x, Fp.y, Fmu.x, Fmu.y);
 	   
 }
 
@@ -133,7 +136,7 @@ event profile (t = t_end) {
   sprintf (name, "vprofx1-%d", Re); // x = 4.8125
   FILE * fv = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (4.8125, i) {
+    foreach_point (ci.x+(delta*20), i) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
@@ -149,7 +152,7 @@ event profile (t = t_end) {
   sprintf (name, "vprofx2-%d", Re); // x = 5
   FILE * fv1 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (5, i) {
+    foreach_point (ci.x, i) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
@@ -165,14 +168,14 @@ event profile (t = t_end) {
   sprintf (name, "vprofx3-%d", Re); // x = 10
   FILE * fv2 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (10, i) {
+    foreach_point (12, i) {
       if (cs[] > 0 && cs[] < 1)
         k = 2.;
       else if (cs[] == 1)
 	k = 1.;
       else
 	k = 0.;
-      fprintf (fv2, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
+      fprintf (fv2, "%d %g %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[], Delta); 
     }
   }
   fflush (fv2);
@@ -210,18 +213,43 @@ event profile (t = t_end) {
   fflush (fv4);
   fclose (fv4);
 
+  sprintf (name, "left-boundary-%d.dat", Re);
+  FILE * fpv = fopen (name, "w");
+  foreach_boundary(right)
+    fprintf (fpv, "%g %g %g %g %g %g\n", x, y, Delta, u.x[], u.y[], p[]);
+  fflush (fpv);
+  fclose (fpv);
+
   sprintf (name, "surface-%d", Re);
   FILE * fv5 = fopen (name, "w");
+  scalar omega[];
+
   foreach() {
     if (cs[] > 0. && cs[] < 1.) {
       coord b, n;
       embed_geometry (point, &b, &n);
       double xe = x + b.x*Delta, ye = y + b.y*Delta;
 
+      omega[] = embed_vorticity (point, u, b, n);
+      coord dudn = embed_gradient (point, u, b, n);
+      double dudnMag = sqrt(sq(dudn.x) + sq(dudn.y));
+
       double theta = atan2 ((ye - ci.y), (xe - ci.x)) * (180/M_PI);
       double cp = embed_interpolate (point, p, b) / (0.5 * sq(U0));
-      fprintf (fv5, "%g %g\n", theta, cp);
-    }
+
+      coord avgu = {0};
+      int counter = 0;
+      foreach_neighbor()
+        if (cs[] == 1) {
+            foreach_dimension()
+                avgu.x += u.x[];
+            counter++;
+        }
+
+      fprintf (fv5, "%g %g %g %g %g %g %g %g %g %g %g %g\n", theta, cp, // 2
+                     pressureDrag.x[], pressureDrag.y[], frictionDrag.x[], frictionDrag.y[], // 6
+                     omega[], dudn.x, dudn.y, dudnMag, avgu.x/counter, avgu.y/counter); // 12
+    }                     
   }
   fflush (fv5);
   fclose (fv5);
@@ -255,13 +283,8 @@ event snapshot (t = t_end) {
   vorticity (u, omega);
 
   char name[80];
-  sprintf (name, "vort_final-%d.png", Re);
   view (fov = 2, tx = -0.275, ty = -0.50,
 	width = 3000, height = 1500); 
-  isoline ("omega", n = 15, min = -3, max = 3);
-  draw_vof ("cs", "fs", filled = -1, lw = 5);
-  save (name);
-
   sprintf (name, "xvelo-%d.png", Re);
   clear();
   draw_vof ("cs", "fs", filled = -1, lw = 5);
@@ -300,7 +323,14 @@ event snapshot (t = t_end) {
   draw_vof ("cs", "fs", filled = -1, lw = 5);
   isoline ("u.x", n = 25, min = -.1, max = 1.15);
   save (name);
+
+  sprintf (name, "vortiso-%d.png", Re);
+  clear();
+  isoline ("omega", n = 15, min = -3, max = 3);
+  draw_vof ("cs", "fs", filled = -1, lw = 5);
+  save (name);
 }
+
 
 int count = 0;
 event frequency (i++) {
@@ -322,6 +352,7 @@ event frequency (i++) {
     count++;
   }
 }
+
 
 event movie (t += 0.01; t <= t_end) {
 }

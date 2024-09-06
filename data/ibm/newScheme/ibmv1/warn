@@ -1,0 +1,10 @@
+.qccjXVBC3/cylindernewtest.c:1:7: warning: line number out of range
+cylindernewtest-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:111:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:111:10: warning: unused variable ‘defined’ [-Wunused-variable]
+cylindernewtest.c: In function ‘profile’:
+cylindernewtest.c:192:14: warning: unused variable ‘area’ [-Wunused-variable]

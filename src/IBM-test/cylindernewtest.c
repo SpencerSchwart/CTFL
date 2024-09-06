@@ -1,18 +1,17 @@
 #include "navier-stokes/centered.h"
-// #include "../centered_immersed.h"
-#include "../immersed.h" 
+#include "../immersed-new.h" 
 #include "view.h"
 
-#define L0 20
+#define L0 15
 #define D 0.5
 #define LEVEL 11
 
 int maxlevel = 11;
 int Re;
 double U0 =  1.; // inlet velocity
-double t_end = 40;
-double tf_start = 40;
-coord ci = {5, 10}; // initial coordinates of cylinder
+double t_end = 50;
+double tf_start = 25;
+coord ci = {L0/4, L0/2}; // initial coordinates of cylinder
 coord vc = {0, 0}; // velocity of cylinder
 
 scalar vof[];
@@ -47,7 +46,13 @@ int main() {
 
   Re = 40;
   run();
+    
+    Re = 185;
+    run();
 /*
+  Re = 1;
+  run();
+
   Re = 2;
   run();
 
@@ -80,81 +85,55 @@ event properties (i++) {
    boundary ((scalar *) {muv});
 }
 
-vector Uc[];
-vector ub[];
-double avgCD = 0;
-double avgCL = 0;
+
 int cdcount = 0;
+double avgCD = 0, avgCL = 0;
 
 event logfile (i++){
-  coord desiredF = {0};
-  coord markerF = {0};
-  coord interpolateF = {0};
-  coord gridF = {0};
+  coord Fp, Fp2, Fp3, Fp4;
+  coord Fmu, Fmu2, Fmu3, Fmu4;
+  immersed_forcev3 (vof, p, u, mu, &Fp, &Fmu);      // embed interpolation
+  double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
+  avgCD += t > tf_start? CD : 0;
+  double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(D));
+  avgCL += t > tf_start? CL : 0;
+  cdcount += t > tf_start? 1: 0;
+/*
+  immersed_forcev2 (vof, p, u, mu, &Fp2, &Fmu2);  // 2 point interpolation
+  double CD2 = (Fp2.x + Fmu2.x)/(0.5*sq(U0)*(D));
+  double CL2 = (Fp2.y + Fmu2.y)/(0.5*sq(U0)*(D));
 
-  coord Fctotal = {0};
-  immersed_forcev2 (vof, &desiredF, &markerF, &interpolateF, &gridF);
-  // double CD = (Fp.x)/(1);
-  // avgCD += t > tf_start? CD : 0;
-  // double CL = (Fp.y)/(1);
-  // avgCL += t > tf_start? CL : 0;
-  // cdcount += t > tf_start? 1: 0;
+  if (t > 0) immersed_forcev3 (vof, p, u, mu, &Fp3, &Fmu3);  // 3 point interpolation
+  double CD3 = (Fp3.x + Fmu3.x)/(0.5*sq(U0)*(D));
+  double CL3 = (Fp3.y + Fmu3.y)/(0.5*sq(U0)*(D));
 
-  char name[80];
-  coord total = {0};
+  immersed_forcev4 (vof, p, u, mu, &Fp4, &Fmu4);  // extrapolation
+  double CD4 = (Fp4.x + Fmu4.x)/(0.5*sq(U0)*(D)); 
+  double CL4 = (Fp4.y + Fmu4.y)/(0.5*sq(U0)*(D));
+  
+  fprintf (stderr, "%d %g %d %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n", 
+                 i, t, Re, CD, CL, CD2, CL2, CD3, CL3, CD4, CL4,         // 11
+                 Fp.x, Fp.y, Fp2.x, Fp2.y, Fp3.x, Fp3.y, Fp4.x, Fp4.y,            // 19
+                 Fmu.x, Fmu.y, Fmu2.x, Fmu2.y, Fmu3.x, Fmu3.y, Fmu4.x, Fmu4.y); // 27
+  */
 
-  int counter = 0;
-  coord usum = {0};
-  foreach() {
-    if (vof[] > 0 && vof[] < 1) {
-      counter++;
-      coord pc, uc, ucb;
-      coord m = {x, y};
-      coord n = interface_normal (point, vof);
-      double alpha = plane_alpha (vof[], n);
-      double area = plane_area_center(n, alpha, &pc);
+  /* int rank, size;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-      foreach_dimension()
-        pc.x = m.x + pc.x*Delta; 
-
-      coord sum = {0};
-        foreach_neighbor() {
-          double delta_u = delta_func (x, y, pc.x, pc.y, Delta);
-          foreach_dimension()
-	    sum.x += u.x[]*delta_u*dv();
-        }
-      bilinear_interpolation (point, u, pc, &ucb);
-
-      foreach_dimension() {
-        uc.x = sum.x;
-	Uc.x[] = ucb.x;
-	usum.x += ucb.x;
-      }
-    }
-    else
-      foreach_dimension()
-        Uc.x[] = 0;
-        ub.x[] = 0;
-    if(Fc.x[]) {
-      foreach_dimension()
-	Fctotal.x += Fd.x[];
-    }
-  }
-
-  double area = interface_area (vof);
-
- double uavg_x = usum.x/counter;
- double uavg_y = usum.y/counter;
- fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
-	   i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, 
-	   uavg_x, uavg_y, Fctotal.x, Fctotal.y, area,
-       desiredF.x, desiredF.y, markerF.x, markerF.y, 
-       interpolateF.x, interpolateF.y, gridF.x, gridF.y);
-
-
+  printf("%d Process %d out of %d is running\n", i, rank, size);
+  MPI_Barrier(MPI_COMM_WORLD); // Synchronize processes
+  */
+  
+  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g %g %g\n",
+          i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, 
+          CD, avgCD/(cdcount + 1.e-6) , CL, avgCL/(cdcount + 1.e-6),
+          Fp.x, Fp.y, Fmu.x, Fmu.y);
+  
 }
 
-event profile (t = t_end) {
+
+event profile (t = end) {
   int k = 0;
   double delta = L0/(pow(2,LEVEL));
   char name[80];
@@ -162,13 +141,7 @@ event profile (t = t_end) {
   sprintf (name, "vprofx1-%d", Re); // x = 4.8125
   FILE * fv = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (4.8125, i) {
-      if (vof[] > 0 && vof[] < 1)
-        k = 2.;
-      else if (vof[] == 1)
-	k = 1.;
-      else
-	k = 0.;
+    foreach_point (ci.x - (delta*10), i) {
       fprintf (fv, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
     }
   }
@@ -178,13 +151,7 @@ event profile (t = t_end) {
   sprintf (name, "vprofx2-%d", Re); // x = 5
   FILE * fv1 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (5, i) {
-      if (vof[] > 0 && vof[] < 1)
-        k = 2.;
-      else if (vof[] == 1)
-	k = 1.;
-      else
-	k = 0.;
+    foreach_point (ci.x, i) {
       fprintf (fv1, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
@@ -194,14 +161,8 @@ event profile (t = t_end) {
   sprintf (name, "vprofx3-%d", Re); // x = 10
   FILE * fv2 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
-    foreach_point (10, i) {
-      if (vof[] > 0 && vof[] < 1)
-        k = 2.;
-      else if (vof[] == 1)
-	k = 1.;
-      else
-	k = 0.;
-      fprintf (fv2, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]); 
+    foreach_point (12, i) {
+      fprintf (fv2, "%d %g %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[], Delta); 
     }
   }
   fflush (fv2);
@@ -211,12 +172,6 @@ event profile (t = t_end) {
   FILE * fv3 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
     foreach_point (i, ci.y) {
-      if (vof[] > 0 && vof[] < 1)
-        k = 2.;
-      else if (vof[] == 1)
-	k = 1.;
-      else
-	k = 0.;
       fprintf (fv3, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
@@ -227,17 +182,18 @@ event profile (t = t_end) {
   FILE * fv4 = fopen(name, "w");
   for(double i = 0; i <= L0; i += delta) {
     foreach_point (i, ci.y+(delta*15)) {
-      if (vof[] > 0 && vof[] < 1)
-        k = 2.;
-      else if (vof[] == 1)
-	k = 1.;
-      else
-	k = 0.;
       fprintf (fv4, "%d %g %g %g %g %g\n", k, x, y, u.x[], u.y[], p[]);
     }
   }
   fflush (fv4);
   fclose (fv4);
+
+  sprintf (name, "left-boundary-%d.dat", Re);
+  FILE * fpv = fopen (name, "w");
+  foreach_boundary(right)
+    fprintf (fpv, "%g %g %g %g %g %g\n", x, y, Delta, u.x[], u.y[], p[]);
+  fflush (fpv);
+  fclose (fpv);
 
   sprintf (name, "surface-%d", Re);
   FILE * fv5 = fopen (name, "w");
@@ -254,11 +210,29 @@ event profile (t = t_end) {
 
       bilinear_interpolation (point, u, pc, &ucb);
       double pcb = scalar_bilinear_interpolation (point, p, pc);
-
+      n = facet_normal (point, vof, sf);
+      normalize (&n);
+      double omega = ibm_vorticity (point, u, pc, n);
       double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
       double mag = sqrt(sq(ucb.x) + sq(ucb.y));
       double cp = pcb / (0.5 * sq(U0));
-      fprintf (fv5, "%g %g %g %g %g %g %g\n", theta, mag, cp, Fc.x[], Fc.y[], Fd.x[], Fd.y[]);
+
+      coord dudn = ibm_gradientv2 (point, u, pc, n);
+      double magdudn = distance (dudn.x, dudn.y);
+
+      coord avgu = {0};
+      int counter = 0;
+      foreach_neighbor()
+        if (vof[] == 0) {
+            foreach_dimension()
+                avgu.x += u.x[];
+            counter++;
+        }
+
+      fprintf (fv5, "%g %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n", 
+                    theta, mag, cp, desiredForce.x[], desiredForce.y[], //5
+                    pressureDrag.x[], pressureDrag.y[], frictionDrag.x[], frictionDrag.y[], // 9
+                    omega,dudn.x, dudn.y, magdudn, avgu.x/counter, avgu.y/counter); // 15
     }
   }
   fflush (fv5);
@@ -368,7 +342,7 @@ event frequency (i++) {
   }
 }
 
-event dump (t += 10) {
+event dump (t += 20) {
   char name[80];
 
   sprintf (name, "%d-dump-%g", Re, t);

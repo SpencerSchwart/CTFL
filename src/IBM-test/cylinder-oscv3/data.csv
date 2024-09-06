@@ -1,0 +1,1 @@
+                fprintf (stderr, "weight[%d][%d] = %g\n", i, j, weight[i][j]);

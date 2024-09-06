@@ -1,2 +1,10 @@
 
-# Quadtree, 6172 steps, 2116.67 CPU, 2120 real, 6.99e+04 points.step/s, 35 var
+# Quadtree, 5173 steps, 2459.34 CPU, 2462 real, 3.8e+04 points.step/s, 41 var
+
+# Quadtree, 5244 steps, 2727.14 CPU, 2732 real, 4.45e+04 points.step/s, 41 var
+
+# Quadtree, 5587 steps, 5290.25 CPU, 5296 real, 3.05e+04 points.step/s, 41 var
+
+# Quadtree, 5998 steps, 4947.9 CPU, 4952 real, 3.87e+04 points.step/s, 41 var
+
+# Quadtree, 6048 steps, 4667 CPU, 4670 real, 4.21e+04 points.step/s, 41 var

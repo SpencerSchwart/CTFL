@@ -47,7 +47,7 @@ int main() {
   TOLERANCE = 1.e-6; 
   DT = 0.01;
 
-  Re = 40;
+  Re = 1;
   run();
 
   Re = 2;
@@ -67,7 +67,6 @@ int main() {
   
   Re = 50;
   run();
-
 }
 
 
@@ -82,12 +81,11 @@ event properties (i++) {
    boundary ((scalar *) {muv});
 }
 
-event logfile (i++){
+event logfile (i++, t <= t_end){
  double area = interface_area (vof);
 
  coord Fp, Fmu;
- // ibm_force (p, u, mu, &Fp, &Fmu);
- interface_force (vof, p, u, mu, &Fp, &Fmu);
+ interface_force (vof, p, u, mu, &Fp, &Fmu, t);
  double CD = (Fp.x + Fmu.x) / (0.5*sq(U0)*(D));
  double CL = (Fp.y + Fmu.y) / (0.5*sq(U0)*(D));
 

@@ -1,0 +1,24 @@
+.qccSYwoZf/cylindernew1.c:1:7: warning: line number out of range
+cylindernew1-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:130:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:130:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_force’:
+./../immersed-new.h:177:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:177:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev2’:
+./../immersed-new.h:216:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:216:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev3’:
+./../immersed-new.h:259:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:259:19: warning: unused variable ‘marker’ [-Wunused-variable]
+cylindernew1.c: In function ‘logfile’:
+cylindernew1.c:90:26: warning: unused variable ‘Fmu4’ [-Wunused-variable]
+cylindernew1.c:90:20: warning: unused variable ‘Fmu3’ [-Wunused-variable]
+cylindernew1.c:90:14: warning: unused variable ‘Fmu2’ [-Wunused-variable]
+cylindernew1.c:89:23: warning: unused variable ‘Fp4’ [-Wunused-variable]
+cylindernew1.c:89:18: warning: unused variable ‘Fp3’ [-Wunused-variable]
+cylindernew1.c:89:13: warning: unused variable ‘Fp2’ [-Wunused-variable]

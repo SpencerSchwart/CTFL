@@ -22,18 +22,30 @@ void boundary_cells (scalar c, scalar ink) {
 #define quadratic(x,a1,a2,a3) \
   (((a1)*((x) - 1.) + (a3)*((x) + 1.))*(x)/2. - (a2)*((x) - 1.)*((x) + 1.))
 
+void printx (int k, int l, Point point, coord n, coord p, int i, int j, double d[], double y1, double v[], scalar vof)
+{
+ //   fprintf (stderr, "|| %d %d %g %g %g n.x=%g n.y=%g p.x=%g p.y=%g i=%d j=%d d[%d]=%g y1=%g v[%d]=%g\n",
+ //            k, l , x, y, vof[], n.x, n.y, p.x, p.y, i, j, l, d[l], y1, l, v[l]);
+}
+
+void printy (int k, Point point, coord n, coord p, double gradient, scalar vof, double d[], double v[], double bc)
+{
+ //   fprintf (stderr, "|| %d %g %g %g n.x=%g n.y=%g p.x=%g p.y=%g grad=%g\n",
+ //            k, x, y, vof[], n.x, n.y, p.x, p.y, gradient);
+}
+
+
+
 foreach_dimension()
 static inline double dirichlet_gradiento_x (Point point, scalar s, scalar cs,
 					   coord n, coord p, double bc,
 					   double * coef)
 {
-//  foreach_dimension()
-//    n.x = - n.x;
-  double d[2], v[2] = {nodata,nodata};
+  double d[2] = {0,0}, v[2] = {nodata,nodata};
   bool defined = true;
-  foreach_dimension()
-    if (defined && sf.x[(n.x > 0.)])
-      defined = false;
+  // foreach_dimension()
+    // if (defined && sf.x[(n.x > 0.)]) // what to do here?
+    //  defined = false;
   if (defined)
     for (int l = 0; l <= 1; l++) {
       int i = (l + 1)*sign(n.x);
@@ -44,7 +56,7 @@ static inline double dirichlet_gradiento_x (Point point, scalar s, scalar cs,
 #if dimension == 2
    if (cs[i,j-1] < 0.5 && cs[i,j] < 0.5 && cs[i,j+1] < 0.5) {
 	    v[l] = quadratic (y1, (s[i,j-1]), (s[i,j]), (s[i,j+1]));
-        fprintf(stderr, "hi\n");
+        printx (1, l, point, n, p, i, j, d, y1, v, vof);
     }
 #else // dimension == 3
       double z = p.z + d[l]*n.z;
@@ -68,19 +80,28 @@ static inline double dirichlet_gradiento_x (Point point, scalar s, scalar cs,
 				(s[i,j-1,k+1]), (s[i,j,k+1]), (s[i,j+1,k+1])));
 #endif // dimension == 3
       else {
-      fprintf(stderr, "bye\n");
+//        fprintf(stderr, "bye\n");
 	    break;
         }
     }
   if (v[0] == nodata) {
     d[0] = max(1e-3, fabs(p.x/n.x));
     *coef = - 1./(d[0]*Delta);
+    // fprintf (stderr, "yes0\n");
     return bc/(d[0]*Delta);
   }
   *coef = 0.;
-  if (v[1] != nodata) // third-order gradient
-    return (d[1]*(bc - v[0])/d[0] - d[0]*(bc - v[1])/d[1])/((d[1] - d[0])*Delta);
-  return (bc - v[0])/(d[0]*Delta); // second-order gradient
+  double gradient = 0;
+  if (v[1] != nodata) { // third-order gradient 
+    // fprintf (stderr,"|| v[0]=%g v[1]=%g d[0]=%g d[1]=%g delta=%g bc=%g\n", v[0], v[1], d[0], d[1], Delta, bc);
+    gradient = (d[1]*(bc - v[0])/d[0] - d[0]*(bc - v[1])/d[1])/((d[1] - d[0])*Delta);
+    }
+  else {
+    // fprintf (stderr, "yes2\n");
+    gradient = (bc - v[0])/(d[0]*Delta); // second-order gradient
+    }
+  printy (2, point, n, p, gradient, vof, d, v, bc);
+  return gradient;
 }
 
 
@@ -117,7 +138,7 @@ double embed_interpolateo (Point point, scalar s, coord p)
 {
   assert (dimension == 2);
   int i = sign(p.x), j = sign(p.y);
-  if (vof[i] && vof[0,j] && vof[i,j])
+  if (vof[i] < 0.5 && vof[0,j] < 0.5 && vof[i,j] < 0.5)
     // bilinear interpolation when all neighbors are defined
     return ((s[]*(1. - fabs(p.x)) + s[i]*fabs(p.x))*(1. - fabs(p.y)) + 
 	    (s[0,j]*(1. - fabs(p.x)) + s[i,j]*fabs(p.x))*fabs(p.y));
@@ -158,11 +179,12 @@ coord embed_gradiento (Point point, vector u, coord p, coord n)
 
 
 void interface_force (scalar c, scalar p, vector u,
-			face vector mu, coord * Fp, coord * Fmu)
+			face vector mu, coord * Fp, coord * Fmu, double t)
 {
+//  FILE * fp = fopen ("gradient.dat", "w");
   double Fn = 0.;
   coord Fps = {0}, Fmus = {0};
-
+  int counter = 0;
   foreach () {
     if (c[] > 1e-6 && c[] < 1. - 1e-6) {
       
@@ -172,7 +194,7 @@ void interface_force (scalar c, scalar p, vector u,
 
       Fn = area*embed_interpolateo (point, p, b);
       foreach_dimension()
-	Fps.x -= Fn*n.x;
+	    Fps.x -= Fn*n.x;
 
       if (constant(mu.x) != 0.) {
 	double mua = 0., fa = 0.;
@@ -182,7 +204,10 @@ void interface_force (scalar c, scalar p, vector u,
 	}
 	mua /= fa;
 	assert (dimension == 2);
+    counter++;
 	coord dudn = embed_gradiento (point, u, b, n);
+    // if (t >= 39.9) 
+    //    fprintf (stderr, "%d %g %g %g %g %g\n", counter, x, y, vof[], dudn.x, dudn.y);
 	foreach_dimension()
 	  Fmus.x -= area*mua*(dudn.x*(sq(n.x) + 1.) + dudn.y*n.x*n.y);
       }

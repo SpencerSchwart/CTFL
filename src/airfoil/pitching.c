@@ -1,5 +1,6 @@
 #include "navier-stokes/centered.h"
-#include "../immersed.h" // IBM
+#define ROATION 1
+#include "../immersed-new.h" // IBM
 #include "view.h"
 
 #define MAX_THICKNESS 0.15
@@ -7,6 +8,7 @@
 #define L0 20.
 #define Re (10000.)
 #define LEVEL 12
+
 int maxlevel = 12;
 
 double U0 =  1.0; // inlet velocity
@@ -14,14 +16,15 @@ double U0 =  1.0; // inlet velocity
 double rr = 1.1019*sq(MAX_THICKNESS); // Radius of leading edge
 double mm = 0.02; // maximum camber
 double pp = 0.4; // % pos of max camber
-double p_ts = (10); // start time of pitching
-double p_w0 = 0.6 [0,-1]; // angular velocity
-double theta_i = 45; // starting angle
+double p_ts = (0); // start time of pitching
+double w0 = 0.6 [0,-1]; // angular velocity = 0.6
+double theta_i = 5; // starting angle
 
 double t_end = 83 [0,1];
 coord vc = {0.,0.}; // the velocity of the cylinder
 coord ci = {5, 10}; // initial coordinates of airfoil
 coord cr = {0.25*(CHORD_LENGTH), 0.}; // center of rotation
+coord centerRot = {5, 10};
 
 int j;
 
@@ -142,10 +145,9 @@ event init (t = 0) {
   airfoil_shape(vof, sf, theta_i*pi/180);
 }
 
-
 double theta_p;
 event moving_cylinder (i++) {
-  theta_p = t >= p_ts? p_w0*t + theta_i: theta_i;
+  theta_p = t >= p_ts? w0*t + theta_i: theta_i;
   theta_p *= pi/180;
   airfoil_shape (vof, sf, theta_p);
 }
@@ -158,10 +160,10 @@ event properties (i++) {
 
 
 event logfile (i++; t <= t_end) {
-  coord Fp = {0}; 
-  immersed_forcev2 (vof, &Fp);
-  double CD = (Fp.x)/(0.5*sq(U0)*(CHORD_LENGTH));
-  double CL = (Fp.y)/(0.5*sq(U0)*(CHORD_LENGTH));
+  coord Fp, Fmu; 
+  immersed_force (vof, p, u, mu, &Fp, &Fmu);
+  double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(CHORD_LENGTH));
+  double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(CHORD_LENGTH));
   
   fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g\n",
 	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL, theta_p*(180/pi));

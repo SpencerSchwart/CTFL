@@ -1,0 +1,30 @@
+.qccHqjOTp/cylindernewtestlvl10.c:1:7: warning: line number out of range
+cylindernewtestlvl10-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:113:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:113:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘ibm_dirichlet_gradientv2’:
+./../ibm-utils.h:289:9: warning: variable ‘type’ set but not used [-Wunused-but-set-variable]
+./../immersed-new.h: In function ‘end_timestep_0’:
+./../immersed-new.h:128:11: warning: variable ‘desiredVelocity’ set but not used [-Wunused-but-set-variable]
+./../immersed-new.h: In function ‘immersed_force’:
+./../immersed-new.h:170:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:170:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev2’:
+./../immersed-new.h:210:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:210:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev3’:
+./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
+cylindernewtestlvl10.c: In function ‘logfile’:
+cylindernewtestlvl10.c:94:26: warning: unused variable ‘Fmu4’ [-Wunused-variable]
+cylindernewtestlvl10.c:94:20: warning: unused variable ‘Fmu3’ [-Wunused-variable]
+cylindernewtestlvl10.c:94:14: warning: unused variable ‘Fmu2’ [-Wunused-variable]
+cylindernewtestlvl10.c:93:23: warning: unused variable ‘Fp4’ [-Wunused-variable]
+cylindernewtestlvl10.c:93:18: warning: unused variable ‘Fp3’ [-Wunused-variable]
+cylindernewtestlvl10.c:93:13: warning: unused variable ‘Fp2’ [-Wunused-variable]
+cylindernewtestlvl10.c: In function ‘profile’:
+cylindernewtestlvl10.c:228:14: warning: unused variable ‘area’ [-Wunused-variable]

@@ -1,22 +1,19 @@
-.qccDVf6Ux/cylinder-oscv2.c:1:7: warning: line number out of range
+.qccVAdPxe/cylinder-oscv2.c:1:7: warning: line number out of range
 cylinder-oscv2-cpp.c: warning: line number out of range
 <built-in>: warning: line number out of range
 /usr/include/stdc-predef.h:1:7: warning: line number out of range
-./../immersed.h: In function ‘printx’:
-./../immersed.h:112:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h:112:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h: In function ‘solid_force’:
-./../immersed.h:144:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h:144:14: warning: unused variable ‘area’ [-Wunused-variable]
-./../immersed.h:217:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
-./../immersed.h:217:14: warning: unused variable ‘delta_sum’ [-Wunused-variable]
-cylinder-oscv2.c: In function ‘logfile’:
-cylinder-oscv2.c:109:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylinder-oscv2.c:105:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
-cylinder-oscv2.c:109:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylinder-oscv2.c:105:17: warning: variable ‘uc’ set but not used [-Wunused-but-set-variable]
-cylinder-oscv2.c:97:9: warning: unused variable ‘total’ [-Wunused-variable]
-cylinder-oscv2.c:96:8: warning: unused variable ‘name’ [-Wunused-variable]
-cylinder-oscv2.c: In function ‘profile’:
-cylinder-oscv2.c:172:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylinder-oscv2.c:161:10: warning: unused variable ‘delta’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:112:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:112:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../immersed-new.h: In function ‘end_timestep_0’:
+./../immersed-new.h:128:11: warning: unused variable ‘desiredVelocity’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_force’:
+./../immersed-new.h:173:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:173:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev2’:
+./../immersed-new.h:213:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:213:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h: In function ‘immersed_forcev3’:
+./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
