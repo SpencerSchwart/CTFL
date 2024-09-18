@@ -5,6 +5,12 @@ extern coord vc;          // object's imposed velocity
 extern scalar vof;
 extern face vector sf;
 extern int maxlevel;
+#define ROTATION 1
+
+#ifdef ROTATION
+extern coord centerRot;
+extern double w0;
+#endif
 
 vector desiredForce[];    // force calculated at the marker point
 vector cellForce[];       // force located at the cell center (after spreading)
@@ -16,7 +22,6 @@ face vector faceForce[];  // for averaging the cell force to get the face values
 
 vector utemp[];
 vector forceTotal[];
-vector totalDesired[];
 
 event init (t = 0)
 {
@@ -35,14 +40,12 @@ event acceleration (i++)
 
     foreach() {
         foreach_dimension() {
-            utemp.x[] = u.x[] - dt*(p[] - p[-1])/(Delta);
-            // utemp.x[] = u.x[];
+            utemp.x[] = u.x[] - dt*(p[] - p[-1])/(Delta); // second order central difference?
             forceTotal.x[] = 0.;
-            totalDesired.x[] = 0.;
         }
     }
 
-    for (int counter = 0; counter < 10; counter++) { 
+    for (int counter = 0; counter < 4; counter++) { 
 
         // 1. calculate the force at the marker point
         foreach() {
@@ -55,13 +58,22 @@ event acceleration (i++)
 
                 // interpolate to find velocity at marker point
                 foreach_neighbor() {
+#if dimension == 3                
+                    double delta_u = delta_func (x, y, markerPoint.x, markerPoint.y, Delta, z, markerPoint.z);
+#else
                     double delta_u = delta_func (x, y, markerPoint.x, markerPoint.y, Delta);
+#endif                    
                     foreach_dimension()
                         markerVelocity.x += utemp.x[] * delta_u * dv();
                 }
 
                 // calculate the desired force at the marker point
+#ifdef ROTATION
+                desiredVelocity.x = w0 * (markerPoint.y - centerRot.y);
+                desiredVelocity.y = -w0 * (markerPoint.x - centerRot.x);
+#else
                 desiredVelocity = vc;
+#endif
 
                 foreach_dimension() {
                     desiredForce.x[] = (desiredVelocity.x - markerVelocity.x) / dt;
@@ -70,12 +82,21 @@ event acceleration (i++)
             }
             else if (empty_neighbor(point, &markerPoint, vof)) {
                 foreach_neighbor() {
+#if dimension == 3                
+                    double delta_u = delta_func (x, y, markerPoint.x, markerPoint.y, Delta, z, markerPoint.z);
+#else
                     double delta_u = delta_func (x, y, markerPoint.x, markerPoint.y, Delta);
+#endif                    
                     foreach_dimension()
                         markerVelocity.x += utemp.x[] * delta_u * dv();
                 }
+                coord desiredVelocity = vc;
+#ifdef ROTATION
+                desiredVelocity.x = w0 * (markerPoint.y - centerRot.y);
+                desiredVelocity.y = -w0 * (markerPoint.x - centerRot.x);
+#endif
                 foreach_dimension() {
-                    desiredForce.x[] = (vc.x - markerVelocity.x) / dt;
+                    desiredForce.x[] = (desiredVelocity.x - markerVelocity.x) / dt;
                     markerCoord.x[] = markerPoint.x;
                 }
             }
@@ -84,31 +105,24 @@ event acceleration (i++)
                     desiredForce.x[] = markerCoord.x[] = 0.;
         }
 
-        scalar hd[];
-        foreach() {
-            if (markerCoord.x[]) {
-                double hd_sum = 0.;
-                coord markerPoint = {markerCoord.x[], markerCoord.y[]};
-                foreach_neighbor()
-                    if (vof[] >= 0)
-                        hd_sum += delta_func (x, y, markerPoint.x, markerPoint.y, Delta) * dv();
-                hd[] = hd_sum;
-            }
-            else
-                hd[] = 0.;
-        }
 
         // 2. spread the force at the marker point to the nearby cell centers
         foreach() {
             coord forceSum = {0};
-            if (level == maxlevel && vof[] >= 0) {
+            if (level == maxlevel) {
                 double x1 = x, y1 = y;
-
-                foreach_neighbor()
+#if dimension == 3
+                double z1 = z;
+#endif
+                  foreach_neighbor()
                     if (markerCoord.x[] && level == maxlevel) {
+#if dimension == 3                
+                        double delta_h = delta_func (x1, y1, markerCoord.x[], markerCoord.y[], Delta, z1, markerCoord.z[]);
+#else
                         double delta_h = delta_func (x1, y1, markerCoord.x[], markerCoord.y[], Delta);
+#endif                    
                         foreach_dimension() {
-                            forceSum.x += (desiredForce.x[] * delta_h * dv()) / hd[];
+                            forceSum.x += (desiredForce.x[] * delta_h * dv());
                         }
                     }
             }
@@ -118,25 +132,16 @@ event acceleration (i++)
 
         foreach()
             foreach_dimension() {
-                totalDesired.x[] += desiredForce.x[];
                 forceTotal.x[] += cellForce.x[];
                 utemp.x[] += dt*cellForce.x[];
             }
     }
     
     // 3. correct interfacial velocity
-    
     foreach_face()
         faceForce.x[] = fm.x[]*(face_value (forceTotal.x, 0));
     a = faceForce;
-    
-    /*
-    correction(-dt);
-    foreach()
-        foreach_dimension()
-            g.x[] += forceTotal.x[];
-    correction(dt);
-   */
+
 }
 
 
@@ -145,8 +150,8 @@ event acceleration (i++)
 
 event end_timestep (i++)
 {
-    // trash({a});
-    // centered_gradient (p, g);
+    trash({a});
+    centered_gradient (p, g);
 
     trash ({velocityGrad});
     foreach()
@@ -155,89 +160,10 @@ event end_timestep (i++)
 }
 
 
-void immersed_force (scalar c, scalar p, vector u,
-			face vector mu, coord * Fp, coord * Fmu)
-{
-    coord Fps = {0}, Fmus = {0};
-
-    foreach (reduction(+:Fps) reduction(+:Fmus), nowarning) {
-
-        if (c[] > 1e-6 && c[] < 1. - 1e-6) {
-      
-            coord n, b;
-            double area = embed_geometry (point, &b, &n);
-            area *= pow (Delta, dimension - 1);
-
-            double Fn = area*embed_interpolate (point, p, b);
-            coord marker = {markerCoord.x[], markerCoord.y[]};
-            // Fn = area*scalar_bilinear_interpolation (point, p, marker);
-            foreach_dimension()
-	            Fps.x -= Fn*n.x;
-
-            if (constant(mu.x) != 0.) {
-	            double mua = 0., fa = 0.;
-                foreach_dimension() {
-                    mua += mu.x[] + mu.x[1];
-                    fa  += fm.x[] + fm.x[1];
-                }
-            mua /= fa;
-        	assert (dimension == 2);
-            coord dudn = embed_gradient (point, u, b, n, vc);
-            // coord dudn = ibm_gradient (point, u, b, n);
-            // coord dudn = ibm_gradientv2 (point, u, b, n);
-            // coord dudn = extrapolate_gradient (point, vof, marker, n, velocityGrad);
-        	foreach_dimension()
-                Fmus.x -= area*mua*(dudn.x*(sq(n.x) + 1.) + dudn.y*n.x*n.y);
-            }
-        }
-    }
-    *Fp = Fps; *Fmu = Fmus;
-}
-
-void immersed_forcev2 (scalar c, scalar p, vector u,
-			face vector mu, coord * Fp, coord * Fmu)
-{
-    coord Fps = {0}, Fmus = {0};
-
-    foreach (reduction(+:Fps) reduction(+:Fmus), nowarning) {
-
-        if (c[] > 1e-6 && c[] < 1. - 1e-6) {
-      
-            coord n, b;
-            double area = embed_geometry (point, &b, &n);
-            area *= pow (Delta, dimension - 1);
-
-            double Fn = area*embed_interpolate (point, p, b);
-            coord marker = {markerCoord.x[], markerCoord.y[]};
-            // Fn = area*scalar_bilinear_interpolation (point, p, marker);
-            foreach_dimension()
-	            Fps.x -= Fn*n.x;
-
-            if (constant(mu.x) != 0.) {
-	            double mua = 0., fa = 0.;
-                foreach_dimension() {
-                    mua += mu.x[] + mu.x[1];
-                    fa  += fm.x[] + fm.x[1];
-                }
-            mua /= fa;
-        	assert (dimension == 2);
-            // coord dudn = embed_gradient (point, u, b, n, vc);
-            coord dudn = ibm_gradient (point, u, b, n);
-            // coord dudn = ibm_gradientv2 (point, u, b, n);
-            // coord dudn = extrapolate_gradient (point, vof, marker, n, velocityGrad);
-        	foreach_dimension()
-                Fmus.x -= area*mua*(dudn.x*(sq(n.x) + 1.) + dudn.y*n.x*n.y);
-            }
-        }
-    }
-    *Fp = Fps; *Fmu = Fmus;
-}
-
-
 vector frictionDrag[];
 vector pressureDrag[];
 
-void immersed_forcev3 (scalar c, scalar p, vector u,
+void immersed_force (scalar c, scalar p, vector u,
 			face vector mu, coord * Fp, coord * Fmu)
 {
     coord Fps = {0}, Fmus = {0};
@@ -251,8 +177,6 @@ void immersed_forcev3 (scalar c, scalar p, vector u,
             area *= pow (Delta, dimension - 1);
 
             double Fn = area*embed_interpolate (point, p, b);
-            coord marker = {markerCoord.x[], markerCoord.y[]};
-            // Fn = area*scalar_bilinear_interpolation (point, p, marker);
             foreach_dimension() {
 	            Fps.x -= Fn*n.x;
                 pressureDrag.x[] = -Fn*n.x;
@@ -278,45 +202,14 @@ void immersed_forcev3 (scalar c, scalar p, vector u,
     *Fp = Fps; *Fmu = Fmus;
 }
 
-void immersed_forcev4 (scalar c, scalar p, vector u,
-			face vector mu, coord * Fp, coord * Fmu)
+coord ibm_force ()
 {
-    coord Fps = {0}, Fmus = {0};
-
-    foreach (reduction(+:Fps) reduction(+:Fmus), nowarning) {
-
-        if (c[] > 1e-6 && c[] < 1. - 1e-6) {
-      
-            coord n, b;
-            double area = embed_geometry (point, &b, &n);
-            area *= pow (Delta, dimension - 1);
-
-            double Fn = area*embed_interpolate (point, p, b);
-            coord marker = {markerCoord.x[], markerCoord.y[]};
-            // Fn = area*scalar_bilinear_interpolation (point, p, marker);
-            foreach_dimension()
-	            Fps.x -= Fn*n.x;
-
-            if (constant(mu.x) != 0.) {
-	            double mua = 0., fa = 0.;
-                foreach_dimension() {
-                    mua += mu.x[] + mu.x[1];
-                    fa  += fm.x[] + fm.x[1];
-                }
-            mua /= fa;
-        	assert (dimension == 2);
-            // coord dudn = embed_gradient (point, u, b, n, vc);
-            // coord dudn = ibm_gradient (point, u, b, n);
-            // coord dudn = ibm_gradientv2 (point, u, b, n);
-            coord dudn = extrapolate_gradient (point, vof, marker, n, velocityGrad);
-        	foreach_dimension()
-                Fmus.x -= area*mua*(dudn.x*(sq(n.x) + 1.) + dudn.y*n.x*n.y);
-            }
-        }
-    }
-    *Fp = Fps; *Fmu = Fmus;
+    coord ibmForce = {0};
+    foreach()
+        foreach_dimension()
+            ibmForce.x += forceTotal.x[]*dv();
+    return ibmForce;
 }
-
 
 double ibm_vorticity (Point point, vector u, coord p, coord n)
 {
@@ -332,3 +225,48 @@ double embed_vorticity (Point point, vector u, coord p, coord n)
     return dudn.y*n.x - dudn.x*n.y;
 }
 
+double ibm_pressure (Point point, scalar p, coord markerPoint)
+{
+    double distance_min = 1e10;
+    double pressure = 0.;
+    foreach_neighbor() {
+        if (vof[] == 0) {
+            double d = distance (x - markerPoint.x, y - markerPoint.y);
+            if (d <= distance_min) {
+                distance_min = d;
+                pressure = p[];
+            }
+        }
+    }
+    return pressure;
+}
+
+double ibm_pressurev2 (Point point, scalar p, coord markerPoint)
+{
+    double distance_min = 1e10;
+    double pressure = 0.;
+    foreach_neighbor() {
+        if (vof[] < 0.5) {
+            double d = distance (x - markerPoint.x, y - markerPoint.y);
+            if (d <= distance_min) {
+                distance_min = d;
+                pressure = p[];
+            }
+        }
+    }
+    return pressure;
+}
+
+double ibm_pressurev3 (Point point, scalar p, coord markerPoint)
+{
+    double pressure = 0;
+    foreach_neighbor() {
+        if (vof[] < 0.5) {
+            double delta_p = delta_func (x, y, markerPoint.x, markerPoint.y, Delta);
+            foreach_dimension()
+               pressure += p[] * delta_p * dv();
+        }
+    }
+
+    return pressure;
+}

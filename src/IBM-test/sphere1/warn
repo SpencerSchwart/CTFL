@@ -1,0 +1,10 @@
+.qccTWH1GB/sphere1.c:1:7: warning: line number out of range
+sphere1-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_z’:
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]

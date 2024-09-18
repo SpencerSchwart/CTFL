@@ -1,24 +1,18 @@
-.qccForvbK/cylindernew4.c:1:7: warning: line number out of range
+.qcc6SL4DS/cylindernew4.c:1:7: warning: line number out of range
 cylindernew4-cpp.c: warning: line number out of range
 <built-in>: warning: line number out of range
 /usr/include/stdc-predef.h:1:7: warning: line number out of range
 ./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
-./../ibm-utils.h:145:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
 ./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
-./../ibm-utils.h:145:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../immersed-new.h: In function ‘acceleration_0’:
+./../immersed-new.h:113:40: warning: unused variable ‘z1’ [-Wunused-variable]
+./../immersed-new.h:113:32: warning: unused variable ‘y1’ [-Wunused-variable]
+./../immersed-new.h:113:24: warning: unused variable ‘x1’ [-Wunused-variable]
+./../immersed-new.h:113:40: warning: unused variable ‘z1’ [-Wunused-variable]
+./../immersed-new.h:113:32: warning: unused variable ‘y1’ [-Wunused-variable]
+./../immersed-new.h:113:24: warning: unused variable ‘x1’ [-Wunused-variable]
 ./../immersed-new.h: In function ‘immersed_force’:
-./../immersed-new.h:172:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h:172:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h: In function ‘immersed_forcev2’:
-./../immersed-new.h:211:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h:211:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h: In function ‘immersed_forcev3’:
-./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
-cylindernew4.c: In function ‘logfile’:
-cylindernew4.c:90:26: warning: unused variable ‘Fmu4’ [-Wunused-variable]
-cylindernew4.c:90:20: warning: unused variable ‘Fmu3’ [-Wunused-variable]
-cylindernew4.c:90:14: warning: unused variable ‘Fmu2’ [-Wunused-variable]
-cylindernew4.c:89:23: warning: unused variable ‘Fp4’ [-Wunused-variable]
-cylindernew4.c:89:18: warning: unused variable ‘Fp3’ [-Wunused-variable]
-cylindernew4.c:89:13: warning: unused variable ‘Fp2’ [-Wunused-variable]
+./../immersed-new.h:178:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:178:19: warning: unused variable ‘marker’ [-Wunused-variable]

@@ -1,32 +1,25 @@
-.qcccauT37/cylinder-oscv5.c:1:7: warning: line number out of range
+.qccjZU9e6/cylinder-oscv5.c:1:7: warning: line number out of range
 cylinder-oscv5-cpp.c: warning: line number out of range
 <built-in>: warning: line number out of range
 /usr/include/stdc-predef.h:1:7: warning: line number out of range
 ./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
-./../ibm-utils.h:130:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h:145:10: warning: unused variable ‘defined’ [-Wunused-variable]
 ./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
-./../ibm-utils.h:130:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h:145:10: warning: unused variable ‘defined’ [-Wunused-variable]
 ./../immersed-new.h: In function ‘immersed_force’:
-./../immersed-new.h:164:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h:164:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:172:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:172:19: warning: unused variable ‘marker’ [-Wunused-variable]
 ./../immersed-new.h: In function ‘immersed_forcev2’:
-./../immersed-new.h:203:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h:203:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:211:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:211:19: warning: unused variable ‘marker’ [-Wunused-variable]
 ./../immersed-new.h: In function ‘immersed_forcev3’:
-./../immersed-new.h:246:19: warning: unused variable ‘marker’ [-Wunused-variable]
-./../immersed-new.h:246:19: warning: unused variable ‘marker’ [-Wunused-variable]
-cylinder-oscv5.c: In function ‘logfile’:
-cylinder-oscv5.c:86:26: warning: unused variable ‘Fmu4’ [-Wunused-variable]
-cylinder-oscv5.c:86:20: warning: unused variable ‘Fmu3’ [-Wunused-variable]
-cylinder-oscv5.c:86:14: warning: unused variable ‘Fmu2’ [-Wunused-variable]
-cylinder-oscv5.c:85:23: warning: unused variable ‘Fp4’ [-Wunused-variable]
-cylinder-oscv5.c:85:18: warning: unused variable ‘Fp3’ [-Wunused-variable]
-cylinder-oscv5.c:85:13: warning: unused variable ‘Fp2’ [-Wunused-variable]
+./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
+./../immersed-new.h:254:19: warning: unused variable ‘marker’ [-Wunused-variable]
 cylinder-oscv5.c: In function ‘profile’:
-cylinder-oscv5.c:143:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylinder-oscv5.c:139:22: warning: unused variable ‘fcb’ [-Wunused-variable]
-cylinder-oscv5.c:132:10: warning: unused variable ‘delta’ [-Wunused-variable]
+cylinder-oscv5.c:138:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv5.c:134:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv5.c:127:10: warning: unused variable ‘delta’ [-Wunused-variable]
 cylinder-oscv5.c: In function ‘profile2’:
-cylinder-oscv5.c:189:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylinder-oscv5.c:185:22: warning: unused variable ‘fcb’ [-Wunused-variable]
-cylinder-oscv5.c:178:10: warning: unused variable ‘delta’ [-Wunused-variable]
+cylinder-oscv5.c:184:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv5.c:180:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv5.c:173:10: warning: unused variable ‘delta’ [-Wunused-variable]

@@ -40,8 +40,8 @@ int main() {
   init_grid (1 << (LEVEL - 3));
   mu = muv;
   TOLERANCE = 1.e-7; 
-  DT = 0.002;
-  // CFL = 0.3;
+  // DT = 0.004;
+  CFL = 0.8;
 
   Re = 185;
   run();
@@ -73,6 +73,8 @@ scalar e[];
 scalar p01[];
 vector eu[];
 vector u0[];
+vector ef[];
+vector f0[];
 
 event logfile (i++, t <= t_end){
 
@@ -82,11 +84,12 @@ event logfile (i++, t <= t_end){
     foreach_dimension() {
       eu.x[] = u.x[] - u0.x[];
       Fu.x += u.x[] * vof[] * dv();
+      ef.x[] = forceTotal.x[] - f0.x[];
     }
   }
 
-  coord Fp, Fp2, Fp3, Fp4;
-  coord Fmu, Fmu2, Fmu3, Fmu4; 
+  coord Fp;
+  coord Fmu; 
 
   immersed_forcev3 (vof, p, u, mu, &Fp, &Fmu);
   double CD = (Fp.x + Fmu.x + Fu.x)/(0.5*sq(U0)*(D));
@@ -95,25 +98,13 @@ event logfile (i++, t <= t_end){
   avgCL += t > tf_start? CL: 0;
   count += t > tf_start? 1:0;
 
-  /*
-  immersed_forcev2 (vof, p, u, mu, &Fp2, &Fmu2);
-  double CD2 = (Fp2.x + Fmu2.x)/(0.5*sq(U0)*(D));
-  double CL2 = (Fp2.y + Fmu2.y)/(0.5*sq(U0)*(D));
-
-  immersed_forcev3 (vof, p, u, mu, &Fp3, &Fmu3);
-  double CD3 = (Fp3.x + Fmu3.x)/(0.5*sq(U0)*(D));
-  double CL3 = (Fp3.y + Fmu3.y)/(0.5*sq(U0)*(D));
-  
-  immersed_forcev4 (vof, p, u, mu, &Fp4, &Fmu4);
-  double CD4 = (Fp4.x + Fmu4.x)/(0.5*sq(U0)*(D));
-  double CL4 = (Fp4.y + Fmu4.y)/(0.5*sq(U0)*(D));
-  */
   coord Fd = {0};
   foreach() {
     p01[] = p[];
     foreach_dimension() {
         u0.x[] = u.x[];
         Fd.x += forceTotal.x[] * dv();
+        f0.x[] = forceTotal.x[];
     }
   }
 /*

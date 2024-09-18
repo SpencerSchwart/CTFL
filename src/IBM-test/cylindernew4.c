@@ -4,9 +4,9 @@
 
 #define L0 15
 #define D 0.5
-#define LEVEL 11
+#define LEVEL 10
 
-int maxlevel = 11;
+int maxlevel = 10;
 int Re;
 double U0 =  1.; // inlet velocity
 double t_end = 50;
@@ -41,9 +41,9 @@ int main() {
   init_grid (1 << (LEVEL-2));
   mu = muv;
   TOLERANCE = 1.e-6; 
-  DT = 0.01;
+  CFL = 0.2;
 
-  Re = 40;
+  Re = 20;
   run();
 
   avgCD = 0, avgCL = 0;
@@ -86,9 +86,9 @@ event properties (i++) {
 
 
 event logfile (i++) {
-  coord Fp, Fp2, Fp3, Fp4;
-  coord Fmu, Fmu2, Fmu3, Fmu4;
-  immersed_forcev3 (vof, p, u, mu, &Fp, &Fmu); 
+  coord Fp;
+  coord Fmu;
+  immersed_force (vof, p, u, mu, &Fp, &Fmu); 
   double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
   avgCD += t > tf_start? CD : 0;
   double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(D));
@@ -225,9 +225,29 @@ event profile (t = t_end) {
 
       coord dudn = ibm_gradientv2 (point, u, pc, n);
       double magdudn = distance (dudn.x, dudn.y);
+     
+      coord totalForce = {0};
+      foreach_neighbor() {
+        double delta_f = delta_func (x, y, pc.x, pc.y, Delta);
+        foreach_dimension()
+          totalForce.x += forceTotal.x[] * delta_f * dv();            
+      }
+      double Fp1 = -(totalForce.x*n.x + totalForce.y*n.y) * area;
       
-      double Fp1 = -(totalDesired.x[]*n.x + totalDesired.y[]*n.y) * area;
-      double Fp2 = -(forceTotal.x[]*n.x + forceTotal.y[]*n.y) * area;
+      bilinear_interpolation (point, forceTotal, pc, &totalForce);
+      double Fp2 = -(totalForce.x*n.x + totalForce.y*n.y) * area;
+
+      double cp1 = ibm_pressure (point, p, pc);
+      double cp2 = ibm_pressurev2 (point, p, pc);
+      double cp3 = ibm_pressurev3 (point, p, pc);
+      double cp4 = extrapolate_scalar (point, vof, pc, n, p); // slightly better than cp5
+      double cp5 = extrapolate_scalarv2 (point, vof, pc, n, p);
+
+      cp1 /= (0.5 * sq(U0)); 
+      cp2 /= (0.5 * sq(U0));
+      cp3 /= (0.5 * sq(U0));
+      cp4 /= (0.5 * sq(U0));
+      cp5 /= (0.5 * sq(U0));
 
       coord avgu = {0};
       int counter = 0;
@@ -238,11 +258,11 @@ event profile (t = t_end) {
             counter++;
         }
 
-      fprintf (fv5, "%g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n", 
+      fprintf (fv5, "%g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n", 
                     theta, mag, cp, desiredForce.x[], desiredForce.y[], // 5
                     pressureDrag.x[], pressureDrag.y[], frictionDrag.x[], frictionDrag.y[], // 9
                     omega,dudn.x, dudn.y, magdudn, avgu.x/counter, avgu.y/counter, // 15
-                    omegaE, dudne.x, dudne.y, Fp1, Fp2); // 20
+                    omegaE, dudne.x, dudne.y, Fp1, Fp2, cp1, cp2, cp3, cp4, cp5); // 25
     }
   }
   fflush (fv5);

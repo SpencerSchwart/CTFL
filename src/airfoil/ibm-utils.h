@@ -3,6 +3,8 @@
 #line 1 "./../ibm-utils.h"
 extern scalar vof;
 extern face vector sf;
+
+
 #define distance(a,b) sqrt(sq(a) + sq(b))
 
 void bilinear_interpolation (Point point, vector uv, coord pc, coord * uc)
@@ -63,10 +65,46 @@ double phi_func (double x, double h)
     return phi;
 }
 
-double delta_func (double x, double y, double xc, double yc, double Delta)
+double phi_smooth (double x, double h)
+{
+    double r = x / h;
+    double phi;
+
+    if (fabs(r) <= 0.5)
+        phi = 3./8. + M_PI/32. - sq(r)/4.;
+    else if (fabs(r) > 0.5 && fabs(r) <= 1.5)
+        phi = 1./4. + (1. - fabs(r)) / (8.) * sqrt (-2. + 8. * fabs(r) - 4*sq(r)) - 1./8. * asin(sqrt(2.) * (fabs(r) - 1.));
+    else if (fabs(r) > 1.5 && fabs(r) <= 2.5)
+        phi = 17./16. - M_PI/64. - (3*fabs(r))/4. + sq(r)/8. + (fabs(r) - 2)/16. * sqrt (-14. + 16*fabs(r) - 4*sq(r)) + 1./16. * asin(sqrt(2.) * (fabs(r) - 2));
+    else
+        phi = 0.;
+
+    return phi;
+}
+
+double phi_three (double x, double h)
+{
+    double r = x / h;
+    double phi;
+
+    if (fabs(r) <= 0.5)
+        phi = 1./3. * (1 + sqrt(1 - 3 * sq(r)));
+    else if (fabs(r) <= 1.5 && fabs(r) > 0.5)
+        phi = 1./6. * (5 - 3 * fabs(r) - sqrt (1 - 3 * sq(1 - fabs(r))));
+    else
+        phi = 0.;
+
+    return phi;
+}
+
+double delta_func (double x, double y, double xc, double yc, double Delta, double z = 0, double zc = 0)
 {
     double phi_x = phi_func (x - xc, Delta);
     double phi_y = phi_func (y - yc, Delta);
+#if dimension == 3
+    double phi_z = phi_func (z - zc, Delta);
+    return (phi_x * phi_y * phi_z) / pow(Delta, 3);
+#endif 
     return (phi_x * phi_y) / sq(Delta);
 }
 
@@ -92,7 +130,11 @@ bool empty_neighbor (Point point, coord * pc, scalar vof)
 
 double marker_point (Point point, scalar vof, coord * markerPoint)
 {
+#if dimension == 3
+    coord cellCenter = {x, y, z};
+#else
     coord cellCenter = {x, y};
+#endif
     coord n = interface_normal (point, vof);
     double alpha = plane_alpha (vof[], n);
     double area = plane_area_center (n, alpha, markerPoint);
@@ -107,9 +149,9 @@ double marker_point (Point point, scalar vof, coord * markerPoint)
 
 foreach_dimension()
 static inline double dirichlet_gradient_x (Point point, scalar s, scalar cs,
-					   coord n, coord p, coord bc,
-					   double * coef)
+					   coord n, coord p, coord bc, double * coef)
 {
+    
     double d[2] = {0,0}, v[2] = {nodata,nodata};
     bool defined = true;
     for (int l = 0; l <= 1; l++) {
@@ -187,22 +229,290 @@ double embed_interpolate (Point point, scalar s, coord p)
   }
 }
 
+
 static inline
 coord embed_gradient (Point point, vector u, coord p, coord n, coord bc)
 {
-  coord dudn;
+  coord markerCoord, boundaryCondition, dudn;
+
+  marker_point(point, vof, &markerCoord);
+  bilinear_interpolation(point, u, markerCoord, &boundaryCondition);
+
   foreach_dimension() {
     bool dirichlet = true;
     if (dirichlet) {
       double val;
-      dudn.x = dirichlet_gradient (point, u.x, vof, n, p, bc, &val);
+      dudn.x = dirichlet_gradient (point, u.x, vof, n, p, boundaryCondition, &val);
+      dudn.x += u.x[]*val;
     }
     else // Neumann
       dudn.x = bc.x;
     if (dudn.x == nodata)
       dudn.x = 0.;
   }
+
+    // fprintf (stderr, "|| x=%g y=%g mC.x=%g mC.y=%g bC.x=%g bC.y=%g dudn.x=%g dudn.y=%g\n",
+    //         x, y, markerCoord.x, markerCoord.y, boundaryCondition.x, boundaryCondition.y, dudn.x, dudn.y);
+
   return dudn;
+}
+
+
+double ibm_dirichlet_gradient (Point point, scalar uc, coord n, coord markerCoord, double boundaryCondition)
+{
+    coord cellCenter = {x, y}, distance, normalPoint;
+
+    foreach_dimension() 
+        distance.x = (Delta * n.x) - (markerCoord.x - cellCenter.x);
+   
+    if (fabs(n.x) >= fabs(n.y)) {
+        normalPoint.x = cellCenter.x + sign(n.x)*Delta;
+        normalPoint.y = markerCoord.y + distance.y;
+    }
+    else if (fabs(n.x) < fabs(n.y)) {
+        normalPoint.x = markerCoord.x + distance.x;
+        normalPoint.y = cellCenter.y + sign(n.y)*Delta;
+    }
+    else 
+        return 0.;
+
+    double normalVelocity = scalar_bilinear_interpolation(point, uc, normalPoint);
+    double totalDistance = distance(markerCoord.x - normalPoint.x, markerCoord.y - normalPoint.y);
+
+
+    return (normalVelocity - boundaryCondition) / totalDistance;
+}
+
+
+coord ibm_gradient (Point point, vector u, coord markerCoord, coord n)
+{
+    coord dudn, boundaryCondition;
+
+    marker_point(point, vof, &markerCoord);
+    bilinear_interpolation(point, u, markerCoord, &boundaryCondition);
+
+    foreach_dimension()
+        dudn.x = -ibm_dirichlet_gradient (point, u.x, n, markerCoord, boundaryCondition.x);
+/*
+    fprintf (stderr, "|| x=%g y=%g mC.x=%g mC.y=%g bC.x=%g bC.y=%g dudn.x=%g dudn.y=%g\n",
+             x, y, markerCoord.x, markerCoord.y, boundaryCondition.x, boundaryCondition.y, dudn.x, dudn.y);
+*/            
+    return dudn;
+}
+
+
+double quadratic_interpolation (scalar uc, coord normalPoint, int type)
+{
+    double xc[3] = {0}; // x representing x or y depending on the type
+    double v[3] = {0};
+    double xp = type == 0? normalPoint.y: normalPoint.x;
+
+    foreach_point (normalPoint.x, normalPoint.y) {
+        for (int i = -1; i <= 1; i++) {
+            if (type == 0)
+                xc[i+1] = y + i*Delta;
+            else // type = 1
+                xc[i+1] = x + i*Delta;
+            v[i+1] = type == 0? uc[0,i]: uc[i];
+        }
+    }
+
+    double interpolate = v[0]*((xp - xc[1])*(xp - xc[2]))/((xc[0] - xc[1])*(xc[0]-xc[2]));
+    interpolate += v[1]*((xp - xc[0])*(xp - xc[2]))/((xc[1] - xc[0])*(xc[1] - xc[2]));
+    interpolate += v[2]*((xp - xc[0])*(xp - xc[1]))/((xc[2] - xc[0])*(xc[2] - xc[1]));
+
+    return interpolate;
+}
+
+
+
+/*
+double quadratic_interpolation (scalar uc, coord normalPoint, int type) {
+    double xp = (type == 0) ? normalPoint.y : normalPoint.x;
+    double xc[3] = {0}, v[3] = {0};
+    int i = 0; // Loop index
+
+    // Initialize local variables and then assign after the loop
+    double local_xc[3] = {0};
+    double local_v[3] = {0};
+
+    // Use a serial loop instead of foreach to avoid modifying non-local variables
+    for (i = -1; i <= 1; i++) {
+        if (type == 0) {
+            local_xc[i+1] = normalPoint.y + i * Delta;
+        } else {
+            local_xc[i+1] = normalPoint.x + i * Delta;
+        }
+        local_v[i+1] = (type == 0) ? uc[0,i] : uc[i];
+    }
+
+    // After the loop, copy local values to xc and v arrays
+    for (int j = 0; j < 3; j++) {
+        xc[j] = local_xc[j];
+        v[j] = local_v[j];
+    }
+
+    // Now perform the interpolation
+    double interpolate = v[0] * ((xp - xc[1]) * (xp - xc[2])) / ((xc[0] - xc[1]) * (xc[0] - xc[2]));
+    interpolate += v[1] * ((xp - xc[0]) * (xp - xc[2])) / ((xc[1] - xc[0]) * (xc[1] - xc[2]));
+    interpolate += v[2] * ((xp - xc[0]) * (xp - xc[1])) / ((xc[2] - xc[0]) * (xc[2] - xc[1]));
+
+    return interpolate;
+}
+*/
+
+
+double ibm_dirichlet_gradientv2 (Point point, scalar uc, coord n, coord markerCoord, double boundaryCondition)
+{
+    coord cellCenter = {x, y}, distance, normalPoint;
+    double d[2], v[2];
+    int type;
+    for (int num = 0; num <= 1; num++) {
+        foreach_dimension()
+            distance.x = ((1 + num) * Delta * n.x) - (markerCoord.x - cellCenter.x);
+
+        if (fabs(n.x) >= fabs(n.y)) {
+            type = 0;
+            normalPoint.x = cellCenter.x + sign(n.x)*(Delta * (1 + num));
+            normalPoint.y = markerCoord.y + distance.y;
+        }
+        else {  // fabs(n.x) < fabs(n.y)
+            type = 1;
+            normalPoint.x = markerCoord.x + distance.x;
+            normalPoint.y = cellCenter.y + sign(n.y)*(Delta * (1 + num));
+        }
+
+        // v[num] = scalar_bilinear_interpolation(point, uc, normalPoint);
+        v[num] = quadratic_interpolation (uc, normalPoint, type);
+        d[num] = distance(markerCoord.x - normalPoint.x, markerCoord.y - normalPoint.y);
+    }
+    
+    double gradient = ((boundaryCondition - v[0])*(d[1]/d[0]) - (boundaryCondition - v[1])*(d[0]/d[1]));
+    gradient /= d[1] - d[0]; 
+
+    return gradient;
+}
+
+
+coord ibm_gradientv2 (Point point, vector u, coord markerCoord, coord n)
+{
+    coord dudn, boundaryCondition;
+
+    marker_point(point, vof, &markerCoord);
+    bilinear_interpolation(point, u, markerCoord, &boundaryCondition);
+
+    foreach_dimension()
+        dudn.x = ibm_dirichlet_gradientv2 (point, u.x, n, markerCoord, boundaryCondition.x);
+         
+    return dudn;
+}
+
+
+coord extrapolate_gradient (Point point, scalar s, coord markerCoord, coord n, vector v)
+{
+
+    double weight[5][5] = {0};
+    double weightSum = 0.;
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (s[i,j] == 0) {
+
+                coord cellCenter = {x + Delta*i,y + Delta*j}, d; // how to get x and y from cell centers?
+                foreach_dimension()
+                    d.x = markerCoord.x - cellCenter.x;
+
+                double distanceMag = distance (d.x, d.y);
+                double normalProjection = (n.x * d.x) + (n.y * d.y);
+
+                weight[i][j] = sq(distanceMag) * fabs(normalProjection);
+
+                weightSum += weight[i][j];
+            }
+            else
+                weight[i][j] = 0.;
+        }
+    }
+
+    coord dudn = {0};
+
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            foreach_dimension()
+                dudn.x += (weight[i][j]/weightSum) * v.x[i,j];
+        }
+    }
+
+    return dudn;
+}
+
+double extrapolate_scalar (Point point, scalar s, coord markerCoord, coord n, scalar p)
+{
+    double weight[5][5] = {0};
+    double weightSum = 0.;
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (s[i,j] == 0) {
+
+                coord cellCenter = {x + Delta*i,y + Delta*j}, d;
+                foreach_dimension()
+                    d.x = markerCoord.x - cellCenter.x;
+
+                double distanceMag = distance (d.x, d.y);
+                double normalProjection = (n.x * d.x) + (n.y * d.y);
+
+                weight[i][j] = sq(distanceMag) * fabs(normalProjection);
+
+                weightSum += weight[i][j];
+            }
+            else
+                weight[i][j] = 0.;
+        }
+    }
+
+    double pressure = 0;
+
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            pressure += (weight[i][j]/weightSum) * p[i,j];
+        }
+    }
+
+    return pressure;
+}
+
+double extrapolate_scalarv2 (Point point, scalar s, coord markerCoord, coord n, scalar p)
+{
+    double weight[5][5] = {0};
+    double weightSum = 0.;
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (s[i,j] < 0.5) {
+
+                coord cellCenter = {x + Delta*i,y + Delta*j}, d;
+                foreach_dimension()
+                    d.x = markerCoord.x - cellCenter.x;
+
+                double distanceMag = distance (d.x, d.y);
+                double normalProjection = (n.x * d.x) + (n.y * d.y);
+
+                weight[i][j] = sq(distanceMag) * fabs(normalProjection);
+
+                weightSum += weight[i][j];
+            }
+            else
+                weight[i][j] = 0.;
+        }
+    }
+
+    double pressure = 0;
+
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            pressure += (weight[i][j]/weightSum) * p[i,j];
+        }
+    }
+
+    return pressure;
 }
 
 

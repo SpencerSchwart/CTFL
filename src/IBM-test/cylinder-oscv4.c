@@ -4,13 +4,13 @@
 
 #define L0 29.257
 #define D 1.
-#define LEVEL 13
+#define LEVEL 11
 
-int maxlevel = 13;
+int maxlevel = 11;
 int Re;
 double U0 =  1.; // inlet velocity
-double t_end = 100;
-double tf_start = 50;
+double t_end = 200;
+double tf_start = 100;
 coord ci = {L0/5, L0/2}; // initial coordinates of cylinder
 coord vc = {0, 0}; // velocity of cylinder
 coord xc = {0, 0};
@@ -33,19 +33,15 @@ pf[right]  = dirichlet (0);
 
 u.n[top]   = neumann (0);
 u.n[bottom] = neumann (0);
-p[top] = neumann (0);
-p[bottom] = neumann (0);
-pf[top] = neumann (0);
-pf[bottom] = neumann (0);
 
 
 int main() {
   size(L0);
-  init_grid (2 << (6));
+  init_grid (1 << (LEVEL - 3));
   mu = muv;
   TOLERANCE = 1.e-7; 
-  DT = 0.002;
-  // CFL = 0.3;
+  // DT = 0.004;
+  CFL = 0.2;
 
   Re = 185;
   run();
@@ -74,47 +70,41 @@ event properties (i++) {
 double avgCD = 0, avgCL = 0;
 int count = 0;
 scalar e[];
-scalar p0[];
+scalar p01[];
 vector eu[];
 vector u0[];
+vector ef[];
+vector f0[];
 
 event logfile (i++, t <= t_end){
 
+  coord Fu = {0};
   foreach() {
-    e[] = p[] - p0[];
-    foreach_dimension()
-        eu.x[] = u.x[] - u0.x[];
+    e[] = p[] - p01[];
+    foreach_dimension() {
+      eu.x[] = u.x[] - u0.x[];
+      Fu.x += u.x[] * vof[] * dv();
+      ef.x[] = forceTotal.x[] - f0.x[];
     }
+  }
 
-  coord Fp, Fp2, Fp3, Fp4;
-  coord Fmu, Fmu2, Fmu3, Fmu4; 
+  coord Fp;
+  coord Fmu; 
 
   immersed_forcev3 (vof, p, u, mu, &Fp, &Fmu);
-  double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
+  double CD = (Fp.x + Fmu.x + Fu.x)/(0.5*sq(U0)*(D));
   avgCD += t > tf_start? CD: 0;
-  double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(D));
+  double CL = (Fp.y + Fmu.y + Fu.y)/(0.5*sq(U0)*(D));
   avgCL += t > tf_start? CL: 0;
   count += t > tf_start? 1:0;
 
-  /*
-  immersed_forcev2 (vof, p, u, mu, &Fp2, &Fmu2);
-  double CD2 = (Fp2.x + Fmu2.x)/(0.5*sq(U0)*(D));
-  double CL2 = (Fp2.y + Fmu2.y)/(0.5*sq(U0)*(D));
-
-  immersed_forcev3 (vof, p, u, mu, &Fp3, &Fmu3);
-  double CD3 = (Fp3.x + Fmu3.x)/(0.5*sq(U0)*(D));
-  double CL3 = (Fp3.y + Fmu3.y)/(0.5*sq(U0)*(D));
-  
-  immersed_forcev4 (vof, p, u, mu, &Fp4, &Fmu4);
-  double CD4 = (Fp4.x + Fmu4.x)/(0.5*sq(U0)*(D));
-  double CL4 = (Fp4.y + Fmu4.y)/(0.5*sq(U0)*(D));
-  */
   coord Fd = {0};
   foreach() {
-    p0[] = p[];
+    p01[] = p[];
     foreach_dimension() {
         u0.x[] = u.x[];
-        Fd.x += cellForce.x[] * dv();
+        Fd.x += forceTotal.x[] * dv();
+        f0.x[] = forceTotal.x[];
     }
   }
 /*
@@ -125,14 +115,15 @@ event logfile (i++, t <= t_end){
        xc.y, vc.y, Fd.x, Fd.y);                                                                    // 33
 */       
 
-  fprintf (stderr, "%d %g %d %g %g %g %g %g %g %g %g %g %g\n",
+  fprintf (stderr, "%d %g %d %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
            i, t, Re, CD, avgCD/(count + 1e-6), CL, avgCL/(count + 1e-6), // 7
-           Fp.x, Fp.y, Fmu.x, Fmu.y, xc.y, vc.y);                        // 13
+           Fp.x, Fp.y, Fmu.x, Fmu.y, xc.y, vc.y, // 13
+           2.*Fd.x, 2.*Fd.y, Fu.x, Fu.y); // 17
 }
 
 
 
-event profile (t += 92.95) {
+event profile (t += 195.51) {
   double delta = 20/(pow(2,LEVEL));
   char name[80];
 
@@ -178,7 +169,7 @@ event profile (t += 92.95) {
 }
 
 
-event profile2 (t += 94.551) {
+event profile2 (t += 197.12) {
   double delta = 20/(pow(2,LEVEL));
   char name[80];
 

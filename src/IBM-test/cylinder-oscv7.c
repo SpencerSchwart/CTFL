@@ -40,8 +40,8 @@ int main() {
   init_grid (1 << (LEVEL - 3));
   mu = muv;
   TOLERANCE = 1.e-7; 
-  DT = 0.004;
-  // CFL = 0.3;
+  // DT = 0.004;
+  CFL = 0.2;
 
   Re = 185;
   run();

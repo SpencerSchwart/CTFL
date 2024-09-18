@@ -41,6 +41,18 @@ int main() {
   TOLERANCE = 1.e-6 [*]; 
   DT = 0.01;
 
+  Re = 1;
+  run();
+
+  Re = 2;
+  run();
+
+  Re = 5;
+  run();
+
+  Re = 10;
+  run();
+
   Re = 20;
   run();
 
@@ -55,25 +67,7 @@ int main() {
 
   Re = 200;
   run();
-/*
-  Re = 2;
-  run();
 
-  Re = 5;
-  run();
-  
-  Re = 10;
-  run();
-  
-  Re = 20;
-  run();
-
-  Re = 40;
-  run();
-
-  Re = 50;
-  run();
-  */
 }
 
 

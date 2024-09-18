@@ -94,10 +94,14 @@ double phi_three (double x, double h)
     return phi;
 }
 
-double delta_func (double x, double y, double xc, double yc, double Delta)
+double delta_func (double x, double y, double xc, double yc, double Delta, double z = 0, double zc = 0)
 {
-    double phi_x = phi_three (x - xc, Delta);
-    double phi_y = phi_three (y - yc, Delta);
+    double phi_x = phi_func (x - xc, Delta);
+    double phi_y = phi_func (y - yc, Delta);
+#if dimension == 3
+    double phi_z = phi_func (z - zc, Delta);
+    return (phi_x * phi_y * phi_z) / pow(Delta, 3);
+#endif 
     return (phi_x * phi_y) / sq(Delta);
 }
 
@@ -123,7 +127,11 @@ bool empty_neighbor (Point point, coord * pc, scalar vof)
 
 double marker_point (Point point, scalar vof, coord * markerPoint)
 {
+#if dimension == 3
+    coord cellCenter = {x, y, z};
+#else
     coord cellCenter = {x, y};
+#endif
     coord n = interface_normal (point, vof);
     double alpha = plane_alpha (vof[], n);
     double area = plane_area_center (n, alpha, markerPoint);
@@ -432,6 +440,76 @@ coord extrapolate_gradient (Point point, scalar s, coord markerCoord, coord n, v
     }
 
     return dudn;
+}
+
+double extrapolate_scalar (Point point, scalar s, coord markerCoord, coord n, scalar p)
+{
+    double weight[5][5] = {0};
+    double weightSum = 0.;
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (s[i,j] == 0) {
+
+                coord cellCenter = {x + Delta*i,y + Delta*j}, d;
+                foreach_dimension()
+                    d.x = markerCoord.x - cellCenter.x;
+
+                double distanceMag = distance (d.x, d.y);
+                double normalProjection = (n.x * d.x) + (n.y * d.y);
+
+                weight[i][j] = sq(distanceMag) * fabs(normalProjection);
+
+                weightSum += weight[i][j];
+            }
+            else
+                weight[i][j] = 0.;
+        }
+    }
+
+    double pressure = 0;
+
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            pressure += (weight[i][j]/weightSum) * p[i,j];
+        }
+    }
+
+    return pressure;
+}
+
+double extrapolate_scalarv2 (Point point, scalar s, coord markerCoord, coord n, scalar p)
+{
+    double weight[5][5] = {0};
+    double weightSum = 0.;
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            if (s[i,j] < 0.5) {
+
+                coord cellCenter = {x + Delta*i,y + Delta*j}, d;
+                foreach_dimension()
+                    d.x = markerCoord.x - cellCenter.x;
+
+                double distanceMag = distance (d.x, d.y);
+                double normalProjection = (n.x * d.x) + (n.y * d.y);
+
+                weight[i][j] = sq(distanceMag) * fabs(normalProjection);
+
+                weightSum += weight[i][j];
+            }
+            else
+                weight[i][j] = 0.;
+        }
+    }
+
+    double pressure = 0;
+
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            pressure += (weight[i][j]/weightSum) * p[i,j];
+        }
+    }
+
+    return pressure;
 }
 
 

@@ -1,12 +1,12 @@
 #include "navier-stokes/centered.h"
-#define ROATION 1
+// #define ROATION 1
 #include "../immersed-new.h" // IBM
 #include "view.h"
 
 #define MAX_THICKNESS 0.15
 #define CHORD_LENGTH 1
 #define L0 20.
-#define Re (10000.)
+#define Re (10000)
 #define LEVEL 12
 
 int maxlevel = 12;
@@ -16,9 +16,9 @@ double U0 =  1.0; // inlet velocity
 double rr = 1.1019*sq(MAX_THICKNESS); // Radius of leading edge
 double mm = 0.02; // maximum camber
 double pp = 0.4; // % pos of max camber
-double p_ts = (0); // start time of pitching
-double w0 = 0.6 [0,-1]; // angular velocity = 0.6
-double theta_i = 5; // starting angle
+double p_ts = (1); // start time of pitching
+double w0 = 0; // angular velocity = 0.6
+double theta_i = 0; // starting angle
 
 double t_end = 83 [0,1];
 coord vc = {0.,0.}; // the velocity of the cylinder
@@ -126,8 +126,9 @@ int main(){
   size(L0);
   init_grid (1 << (LEVEL-4));
   mu = muv;
-  TOLERANCE = 1.e-5 [*];
-
+  TOLERANCE = 1.e-6 [*];
+  CFL = 0.2;
+  // DT = 0.01;
   run();
 }
 
@@ -147,8 +148,11 @@ event init (t = 0) {
 
 double theta_p;
 event moving_cylinder (i++) {
-  theta_p = t >= p_ts? w0*t + theta_i: theta_i;
-  theta_p *= pi/180;
+  w0 = t >= p_ts? 0.6*(1 - exp(-4.6*(t - p_ts))): 0;
+
+  theta_p = t >= p_ts? w0*(t - p_ts) + theta_i: theta_i;
+  theta_p *= M_PI/180;
+
   airfoil_shape (vof, sf, theta_p);
 }
 
@@ -164,14 +168,20 @@ event logfile (i++; t <= t_end) {
   immersed_force (vof, p, u, mu, &Fp, &Fmu);
   double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(CHORD_LENGTH));
   double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(CHORD_LENGTH));
-  
-  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g\n",
-	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL, theta_p*(180/pi));
+ 
+  coord ibmForce = ibm_force();
+  double CD1 = (ibmForce.x)/(0.5*sq(U0)*(CHORD_LENGTH));
+  double CL1 = (ibmForce.y)/(0.5*sq(U0)*(CHORD_LENGTH));
+
+
+  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g\n",
+	   i, t, j, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, // 7
+       CD, CL, CD1, CL1, theta_p*(180/pi));           // 12
   
 }
 
 
-event screenshot (t += 1; t <= t_end) {
+event screenshot (t += 0.25; t <= t_end) {
   char name[80];
 
   scalar omega[];
