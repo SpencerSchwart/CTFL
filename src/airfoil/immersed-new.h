@@ -48,7 +48,7 @@ event acceleration (i++)
         }
     }
 
-    for (int counter = 0; counter < 2; counter++) { 
+    for (int counter = 0; counter < 1; counter++) { 
 
         // 1. calculate the force at the marker point
         foreach() {
@@ -144,9 +144,7 @@ event acceleration (i++)
     foreach_face()
         faceForce.x[] = fm.x[]*(face_value (forceTotal.x, 0));
     a = faceForce;
-    
-    centered_gradient(p, g);
-    event ("viscous_term");
+
 }
 
 

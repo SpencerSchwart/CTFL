@@ -11,7 +11,7 @@
 int maxlevel = 9;
 int Re;
 double U0 =  1.; // inlet velocity
-double t_end = 100;
+double t_end = 150;
 double tf_start = 20;
 coord vc = {0, 0, 0}; // velocity of cylinder
 
@@ -50,16 +50,16 @@ int main() {
   origin ( -3.*D, -L0/2, -L0/2);
   mu = muv;
 
-  TOLERANCE = 1.e-6; 
+  TOLERANCE = 1.e-7; 
   CFL = 0.8;
 
-  /*
+
   Re = 100;
   run();
 
   Re = 250;
   run();
-  */
+
   Re = 300;
   run();
 }
@@ -76,13 +76,8 @@ event properties (i++) {
    boundary ((scalar *) {muv});
 }
 
-scalar l2[];
 event logfile (i++) {
-  lambda2 (u, l2);
-  coord sumF = {0};
-  foreach()
-    foreach_dimension()
-        sumF.x += forceTotal.x[]*dv();
+  coord sumF = ibm_force();
 
   double CD = (sumF.x)/(0.5*sq(U0)*sq(D/2)*M_PI);
   double CL = (sumF.y)/(0.5*sq(U0)*sq(D/2)*M_PI);
@@ -94,7 +89,7 @@ event logfile (i++) {
 }
 
 event frequency (i++) {
-  if (t >= tf_start) {
+  if (t >= tf_start && Re >= 290) {
     char name[80];
     sprintf (name, "freq-5-%d.dat", Re);
     FILE * fp = fopen (name, "a");
@@ -113,7 +108,11 @@ event frequency (i++) {
   }
 }
 
+scalar l2[];
+
 event movies (t = tf_start; t += 0.25; t <= t_end) {
+  if(Re == 300) {
+  lambda2 (u, l2);
   scalar vyz[];
   foreach()
     vyz[] = ((u.y[0,0,1] - u.y[0,0,-1]) - (u.z[0,1] - u.z[0,-1]))/(2.*Delta);
@@ -127,10 +126,11 @@ event movies (t = tf_start; t += 0.25; t <= t_end) {
   isosurface ("l2", -0.01, color = "vyz", min = -1, max = 1,
 	      linear = true, map = cool_warm);
   save (name);
+  }
 }
 
 event adapt (i++) {
   adapt_wavelet ({vof,u}, (double[]){1.e-2,2e-2,2e-2,2e-2},
-		 maxlevel = LEVEL, minlevel = 3);
+		 maxlevel = LEVEL, minlevel = 4);
 }
 

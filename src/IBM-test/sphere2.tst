@@ -1,2 +1,0 @@
-4cf4359873d557f46e4e336a07b4daa7  sphere2.c
-041533c2ffb794cfc4fe6a1ece7a93df  sphere2.s

@@ -1,0 +1,21 @@
+.qccrST5fz/cylinder-oscv7.c:1:7: warning: line number out of range
+/home/spencer/basilisk/CTFL/src/IBM-test/.qccrST5fz//:1:7: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+cylinder-oscv7.c: In function ‘logfile’:
+cylinder-oscv7.c:94:3: warning: implicit declaration of function ‘immersed_forcev3’; did you mean ‘immersed_force’? [-Wimplicit-function-declaration]
+cylinder-oscv7.c: In function ‘profile’:
+cylinder-oscv7.c:138:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv7.c:134:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv7.c:127:10: warning: unused variable ‘delta’ [-Wunused-variable]
+cylinder-oscv7.c: In function ‘profile2’:
+cylinder-oscv7.c:184:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv7.c:180:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv7.c:173:10: warning: unused variable ‘delta’ [-Wunused-variable]
+/usr/bin/ld: /tmp/cc7J3c03.o: in function `logfile':
+/home/spencer/basilisk/CTFL/src/IBM-test/cylinder-oscv7.c:94: undefined reference to `immersed_forcev3'
+collect2: error: ld returned 1 exit status

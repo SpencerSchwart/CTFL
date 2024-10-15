@@ -1,0 +1,27 @@
+.qccrvfZuH/cylinder-oscv8.c:1:7: warning: line number out of range
+cylinder-oscv8-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:154:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:154:10: warning: unused variable ‘defined’ [-Wunused-variable]
+cylinder-oscv8.c: In function ‘profile’:
+cylinder-oscv8.c:160:21: warning: format ‘%g’ expects a matching ‘double’ argument [-Wformat=]
+cylinder-oscv8.c:160:21: warning: format ‘%g’ expects a matching ‘double’ argument [-Wformat=]
+cylinder-oscv8.c:139:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv8.c:135:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv8.c:128:10: warning: unused variable ‘delta’ [-Wunused-variable]
+cylinder-oscv8.c: In function ‘profile2’:
+cylinder-oscv8.c:190:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv8.c:186:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv8.c:179:10: warning: unused variable ‘delta’ [-Wunused-variable]
+ast/init_solver.h: In function ‘logfile’:
+cylinder-oscv8.c:119:3: warning: ‘Fmu.y’ is used uninitialized [-Wuninitialized]
+cylinder-oscv8.c:92:9: note: ‘Fmu’ declared here
+cylinder-oscv8.c:119:3: warning: ‘Fmu.x’ is used uninitialized [-Wuninitialized]
+cylinder-oscv8.c:92:9: note: ‘Fmu’ declared here
+cylinder-oscv8.c:119:3: warning: ‘Fp.y’ is used uninitialized [-Wuninitialized]
+cylinder-oscv8.c:91:9: note: ‘Fp’ declared here
+cylinder-oscv8.c:119:3: warning: ‘Fp.x’ is used uninitialized [-Wuninitialized]
+cylinder-oscv8.c:91:9: note: ‘Fp’ declared here

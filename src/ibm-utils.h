@@ -101,8 +101,9 @@ double delta_func (double x, double y, double xc, double yc, double Delta, doubl
 #if dimension == 3
     double phi_z = phi_func (z - zc, Delta);
     return (phi_x * phi_y * phi_z) / pow(Delta, 3);
-#endif 
+#else
     return (phi_x * phi_y) / sq(Delta);
+#endif
 }
 
 bool empty_neighbor (Point point, coord * pc, scalar vof)
@@ -298,6 +299,7 @@ coord ibm_gradient (Point point, vector u, coord markerCoord, coord n)
 }
 
 
+/*
 double quadratic_interpolation (scalar uc, coord normalPoint, int type)
 {
     double xc[3] = {0}; // x representing x or y depending on the type
@@ -320,7 +322,7 @@ double quadratic_interpolation (scalar uc, coord normalPoint, int type)
 
     return interpolate;
 }
-
+*/
 
 
 /*
@@ -379,8 +381,8 @@ double ibm_dirichlet_gradientv2 (Point point, scalar uc, coord n, coord markerCo
             normalPoint.y = cellCenter.y + sign(n.y)*(Delta * (1 + num));
         }
 
-        // v[num] = scalar_bilinear_interpolation(point, uc, normalPoint);
-        v[num] = quadratic_interpolation (uc, normalPoint, type);
+        v[num] = scalar_bilinear_interpolation(point, uc, normalPoint);
+        // v[num] = quadratic_interpolation (uc, normalPoint, type);
         d[num] = distance(markerCoord.x - normalPoint.x, markerCoord.y - normalPoint.y);
     }
     

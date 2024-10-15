@@ -1,0 +1,20 @@
+.qccdVpcuS/cylindernew3.c:1:7: warning: line number out of range
+/home/spencer/basilisk/CTFL/src/IBM-test/.qccdVpcuS//:1:7: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+cylindernew3.c: In function ‘logfile’:
+cylindernew3.c:91:3: warning: implicit declaration of function ‘immersed_forcev3’; did you mean ‘immersed_force’? [-Wimplicit-function-declaration]
+cylindernew3.c:90:26: warning: unused variable ‘Fmu4’ [-Wunused-variable]
+cylindernew3.c:90:20: warning: unused variable ‘Fmu3’ [-Wunused-variable]
+cylindernew3.c:90:14: warning: unused variable ‘Fmu2’ [-Wunused-variable]
+cylindernew3.c:89:23: warning: unused variable ‘Fp4’ [-Wunused-variable]
+cylindernew3.c:89:18: warning: unused variable ‘Fp3’ [-Wunused-variable]
+cylindernew3.c:89:13: warning: unused variable ‘Fp2’ [-Wunused-variable]
+cylindernew3.c: In function ‘profile’:
+cylindernew3.c:229:22: error: ‘totalDesired’ undeclared (first use in this function)
+cylindernew3.c:229:22: note: each undeclared identifier is reported only once for each function it appears in
+cylindernew3.c:229:37: error: expected expression before ‘]’ token

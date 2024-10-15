@@ -41,8 +41,12 @@ int main() {
   init_grid (1 << (LEVEL-2));
   mu = muv;
   TOLERANCE = 1.e-6; 
-  CFL = 0.2;
+  CFL = 0.8;
 
+  Re = 40;
+  run();
+
+  /*
   Re = 20;
   run();
 
@@ -69,6 +73,7 @@ int main() {
 
   Re = 200;
   run();
+  */
 
 }
 
@@ -86,25 +91,16 @@ event properties (i++) {
 
 
 event logfile (i++) {
-  coord Fp;
-  coord Fmu;
-  immersed_force (vof, p, u, mu, &Fp, &Fmu); 
-  double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
+  coord F = ibm_force();
+  double CD = (-F.x)/(0.5*sq(U0)*(D));
   avgCD += t > tf_start? CD : 0;
-  double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(D));
+  double CL = (-F.y)/(0.5*sq(U0)*(D));
   avgCL += t > tf_start? CL : 0;
   cdcount += t > tf_start? 1: 0;
-
-  coord sumF = {0};
-  foreach()
-    foreach_dimension()
-        sumF.x += forceTotal.x[]*dv();
   
-  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g %g %g %g %g\n",
+  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g\n",
           i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, // 7 
-          CD, avgCD/(cdcount + 1.e-6) , CL, avgCL/(cdcount + 1.e-6), // 11
-          Fp.x, Fp.y, Fmu.x, Fmu.y, sumF.x/(0.5*sq(U0)*(D)), sumF.y/(0.5*sq(U0)*(D))); // 17
-  
+          CD, avgCD/(cdcount + 1.e-6) , CL, avgCL/(cdcount + 1.e-6)); // 11  
 }
 
 
@@ -298,49 +294,57 @@ event snapshot (t = t_end) {
   vorticity (u, omega);
 
   char name[80];
-  view (fov = 2, tx = -0.235, ty = -0.465,
+  view (fov = 2, tx = -0.25, ty = -0.465,
         width = 3000, height = 1500); 
   sprintf (name, "xvelo-%d.png", Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  squares ("u.x", min = 0, max = 1.5, map = cool_warm);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
+  squares ("u.x", min = 0, max = 1.5, map = blue_white_red);
   save (name);
 
   sprintf (name, "yvelo-%d.png", Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  squares ("u.y", min = -0.5, max = 0.5, map = cool_warm);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
+  squares ("u.y", min = -0.5, max = 0.5, map = blue_white_red);
   save (name);
 
-  sprintf (name, "pressure-%d.png", Re);
+  sprintf (name, "%g-pressure-%d.png", t, Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  squares ("u.y", min = -0.5, max = 0.5, map = cool_warm);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
+  squares ("p", min = -0.5, max = 0.5, map = blue_white_red);
+  save (name);
+
+  sprintf (name, "%g-vort-%d.png", t, Re);
+  clear();
+  squares ("omega", min = -3, max = 3, map = blue_white_red);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
   save (name);
 
   sprintf (name, "vectors-%d.png", Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
   vectors ("u", scale =  0.01);
-  squares ("u.x", min = -0.5, max = 1, map = cool_warm);
+  squares ("u.x", min = -0.5, max = 1, map = blue_white_red);
   save (name);
 
-  sprintf (name, "pressureiso-%d.png", Re);
+  sprintf (name, "%g-pressureiso-%d.png", t, Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  isoline ("p", n = 20, min = -0.5, max = 0.5, lc = {1,0,0});
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
+  isoline ("p", n = 20, min = -0.5, max = 0.5, lc = {0,0,0});
+  squares ("p", min = -0.5, max = 0.5, map = blue_white_red);
   save (name);
 
   sprintf (name, "veloiso-%d.png", Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  isoline ("u.x", n = 25, min = -.1, max = 1.15, lc = {1,0,0});
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
+  isoline ("u.x", n = 25, min = -.1, max = 1.15, lc = {0,0,0});
   save (name);
 
-  sprintf (name, "vortiso-%d.png", Re);
+  sprintf (name, "%g-vortiso-%d.png", t, Re);
   clear();
-  isoline ("omega", n = 15, min = -3, max = 3, lc = {1,0,0});
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
+  isoline ("omega", n = 15, min = -3, max = 3, lc = {0,0,0});
+  squares ("omega", min = -3, max = 3, map = blue_white_red);
+  draw_vof ("vof", "sf", lw = 5,  lc = {0,0,0});
   save (name);
 
 }

@@ -1,5 +1,5 @@
-#ifndef BASILISK_HEADER_21
-#define BASILISK_HEADER_21
+#ifndef BASILISK_HEADER_20
+#define BASILISK_HEADER_20
 #line 1 "./../ibm-utils.h"
 extern scalar vof;
 extern face vector sf;
@@ -104,8 +104,9 @@ double delta_func (double x, double y, double xc, double yc, double Delta, doubl
 #if dimension == 3
     double phi_z = phi_func (z - zc, Delta);
     return (phi_x * phi_y * phi_z) / pow(Delta, 3);
-#endif 
+#else
     return (phi_x * phi_y) / sq(Delta);
+#endif
 }
 
 bool empty_neighbor (Point point, coord * pc, scalar vof)

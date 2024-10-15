@@ -1,15 +1,15 @@
-#include "../my-embed.h"
+#include "embed.h"
 #include "navier-stokes/centered.h"
 #include "view.h"
 
 #define L0 15
 #define D 0.5
-#define LEVEL 11
+#define LEVEL 10
 
 int Re;
 double U0 =  1.; // inlet velocity
 double t_end = 50 [0,1];
-double tf_start = 20 [0,1];
+double tf_start = 25 [0,1];
 double xi = 4.8266;
 double yi = 3.0835;
 coord ci = {L0/4, L0/2}; // initial coordinates of cylinder
@@ -34,40 +34,69 @@ double SDF (double x, double y) {
    return - sq(x - ci.x) - sq(y - ci.y) + sq(D/2);
 }
 
+int cdcount = 0;
+double avgCD = 0, avgCL = 0;
+int count = 0;
+
 int main() {
   size(L0);
   init_grid (1 << (LEVEL - 3));
   mu = muv;
   TOLERANCE = 1.e-6 [*]; 
-  DT = 0.01;
+  CFL = 0.2;
 
   Re = 1;
   run();
 
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
   Re = 2;
   run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
 
   Re = 5;
   run();
 
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
   Re = 10;
   run();
 
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
+  /*
   Re = 20;
   run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
 
   Re = 40;
   run();
 
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
   Re = 100;
   run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
 
   Re = 185;
   run();
 
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
   Re = 200;
   run();
-
+  */
 }
 
 
@@ -90,11 +119,14 @@ event properties (i++) {
 }
 
 
-event logfile (i++; t <= t_end){
+event logfile (i++; t <= t_end) {
   coord Fp, Fmu;
   embed_force (p, u, mu, &Fp, &Fmu);
   double CD = (Fp.x + Fmu.x)/(0.5*sq(U0)*(D));
+  avgCD += t > tf_start? CD : 0;
   double CL = (Fp.y + Fmu.y)/(0.5*sq(U0)*(D));
+  avgCL += t > tf_start? CL : 0;
+  cdcount += t > tf_start? 1: 0;
 
  /* 
   double E = 0;
@@ -115,11 +147,12 @@ event logfile (i++; t <= t_end){
 
   }
 */
-  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g\n",
-	   i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, CD, CL, Fp.x, Fp.y, Fmu.x, Fmu.y);
-	   
-}
 
+  fprintf (stderr, "%d %g %d %d %d %d %d %g %g %g %g %g %g %g %g\n",
+	   i, t, Re, mgp.i, mgp.nrelax, mgu.i, mgu.nrelax, // 7
+       CD, avgCD/(cdcount + 1.e-6), CL, avgCL/(cdcount + 1.e-6), // 11
+       Fp.x, Fp.y, Fmu.x, Fmu.y);  // 15
+}
 
 
 event adapt (i++) {
@@ -245,8 +278,7 @@ event profile (t = t_end) {
             counter++;
         }
 
-      fprintf (fv5, "%g %g %g %g %g %g %g %g %g %g %g %g\n", theta, cp, // 2
-                     pressureDrag.x[], pressureDrag.y[], frictionDrag.x[], frictionDrag.y[], // 6
+      fprintf (fv5, "%g %g %g %g %g %g %g %g\n", theta, cp, // 2
                      omega[], dudn.x, dudn.y, dudnMag, avgu.x/counter, avgu.y/counter); // 12
     }                     
   }
@@ -329,24 +361,24 @@ event snapshot (t = t_end) {
 }
 
 
-int count = 0;
+int fcount = 0;
 event frequency (i++) {
-  if (t >= tf_start && Re >= 100) {
+  if (t >= tf_start && Re >= 50) {
     char name[80];
-    sprintf (name, "freq-7.5.dat");
+    sprintf (name, "freq-7.5-%d.dat", Re);
     FILE * fp = fopen (name, "a");
     foreach_point(7.500, ci.y) {
-      fprintf (fp, "%d %g %g %g %g %g %g\n", count, x, y, t, u.x[], u.y[], p[]);
+      fprintf (fp, "%d %g %g %g %g %g %g\n", fcount, x, y, t, u.x[], u.y[], p[]);
     }
     fclose (fp);
 
-    sprintf (name, "freq-10.dat");
+    sprintf (name, "freq-10-%d.dat", Re);
     FILE * fp1 = fopen (name, "a");
     foreach_point(10.000, ci.y) {
-      fprintf (fp1, "%d %g %g %g %g %g %g\n", count, x, y, t, u.x[], u.y[], p[]);
+      fprintf (fp1, "%d %g %g %g %g %g %g\n", fcount, x, y, t, u.x[], u.y[], p[]);
     }
     fclose (fp1);
-    count++;
+    fcount++;
   }
 }
 

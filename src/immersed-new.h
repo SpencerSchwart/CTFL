@@ -5,7 +5,7 @@ extern coord vc;          // object's imposed velocity
 extern scalar vof;
 extern face vector sf;
 extern int maxlevel;
-#define ROTATION 1
+// #define ROTATION 1
 
 #ifdef ROTATION
 extern coord centerRot;
@@ -45,7 +45,7 @@ event acceleration (i++)
         }
     }
 
-    for (int counter = 0; counter < 4; counter++) { 
+    for (int counter = 0; counter < 10; counter++) { 
 
         // 1. calculate the force at the marker point
         foreach() {
@@ -124,10 +124,13 @@ event acceleration (i++)
                         foreach_dimension() {
                             forceSum.x += (desiredForce.x[] * delta_h * dv());
                         }
+                        // fprintf (stderr, "|| %g %g %g %g delta=%g F.x=%g F.y=%g F.z=%g px=%g py=%g pz=%g\n", vof[], x1, y1, z1, delta_h, forceSum.x, forceSum.y, forceSum.z, markerCoord.x[], markerCoord.y[], markerCoord.z[]);
                     }
+            // fprintf (stderr, "|| DONE: %g %g %g sum.x=%g sumy=%g sumz=%g\n", x, y, z, forceSum.x, forceSum.y, forceSum.z);
             }
-            foreach_dimension()
+            foreach_dimension() 
                 cellForce.x[] = forceSum.x;
+
         }
 
         foreach()
@@ -205,7 +208,7 @@ void immersed_force (scalar c, scalar p, vector u,
 coord ibm_force ()
 {
     coord ibmForce = {0};
-    foreach()
+    foreach(reduction(+:ibmForce))
         foreach_dimension()
             ibmForce.x += forceTotal.x[]*dv();
     return ibmForce;

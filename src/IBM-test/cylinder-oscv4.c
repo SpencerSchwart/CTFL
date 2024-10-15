@@ -4,9 +4,9 @@
 
 #define L0 29.257
 #define D 1.
-#define LEVEL 11
+#define LEVEL 10
 
-int maxlevel = 11;
+int maxlevel = 10;
 int Re;
 double U0 =  1.; // inlet velocity
 double t_end = 200;
@@ -41,7 +41,7 @@ int main() {
   mu = muv;
   TOLERANCE = 1.e-7; 
   // DT = 0.004;
-  CFL = 0.2;
+  CFL = 0.5;
 
   Re = 185;
   run();
@@ -91,10 +91,11 @@ event logfile (i++, t <= t_end){
   coord Fp;
   coord Fmu; 
 
-  immersed_forcev3 (vof, p, u, mu, &Fp, &Fmu);
-  double CD = (Fp.x + Fmu.x + Fu.x)/(0.5*sq(U0)*(D));
+  // immersed_force (vof, p, u, mu, &Fp, &Fmu);
+  coord F = ibm_force();
+  double CD = (F.x + Fu.x)/(0.5*sq(U0)*(D));
   avgCD += t > tf_start? CD: 0;
-  double CL = (Fp.y + Fmu.y + Fu.y)/(0.5*sq(U0)*(D));
+  double CL = (F.y + Fu.y)/(0.5*sq(U0)*(D));
   avgCL += t > tf_start? CL: 0;
   count += t > tf_start? 1:0;
 
@@ -137,6 +138,11 @@ event profile (t += 195.51) {
       double alpha = plane_alpha (vof[], n);
       double area = plane_area_center(n, alpha, &pc);
       double pcb1 = embed_interpolate (point, p, pc);
+      double cp4 = extrapolate_scalar (point, vof, pc, n, p);
+      double cp5 = extrapolate_scalarv2 (point, vof, pc, n, p);
+
+      cp4 /= (0.5 * sq(U0));
+      cp5 /= (0.5 * sq(U0));
 
       foreach_dimension()
         pc.x = m.x + pc.x*Delta;
@@ -151,7 +157,7 @@ event profile (t += 195.51) {
       double cp = pcb / (0.5 * sq(U0));
       double cp1 = pcb1 / (0.5 * sq(U0));
       double omega = ibm_vorticity (point, u, pc, n);
-      fprintf (fv5, "%g %g %g %g %g %g\n", xc.y, fabs(theta), umag, cp, cp1, omega);
+      fprintf (fv5, "%g %g %g %g %g %g %g %g\n", xc.y, theta, umag, cp, cp1, omega, cp4, cp5);
     }
   }
   fflush (fv5);
@@ -183,6 +189,11 @@ event profile2 (t += 197.12) {
       double alpha = plane_alpha (vof[], n);
       double area = plane_area_center(n, alpha, &pc);
       double pcb1 = embed_interpolate (point, p, pc);
+      double cp4 = extrapolate_scalar (point, vof, pc, n, p);
+      double cp5 = extrapolate_scalarv2 (point, vof, pc, n, p);
+
+      cp4 /= (0.5 * sq(U0));
+      cp5 /= (0.5 * sq(U0));
 
       foreach_dimension()
         pc.x = m.x + pc.x*Delta;
@@ -197,7 +208,7 @@ event profile2 (t += 197.12) {
       double cp = pcb / (0.5 * sq(U0));
       double cp1 = pcb1 / (0.5 * sq(U0));
       double omega = ibm_vorticity (point, u, pc, n);
-      fprintf (fv5, "%g %g %g %g %g %g\n", xc.y, fabs(theta), umag, cp, cp1, omega);
+      fprintf (fv5, "%g %g %g %g %g %g %g %g\n", xc.y, theta, umag, cp, cp1, omega, cp4, cp5);
     }
   }
   fflush (fv5);
