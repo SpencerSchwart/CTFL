@@ -1,27 +1,29 @@
-.qcc9u8LGe/cylinder-oscv11.c:1:7: warning: line number out of range
+.qccWNDFpK/cylinder-oscv11.c:1:7: warning: line number out of range
 cylinder-oscv11-cpp.c: warning: line number out of range
 <built-in>: warning: line number out of range
 /usr/include/stdc-predef.h:1:7: warning: line number out of range
 ./../ibm-utils.h: In function ‘dirichlet_gradient_x’:
-./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h:154:10: warning: unused variable ‘defined’ [-Wunused-variable]
 ./../ibm-utils.h: In function ‘dirichlet_gradient_y’:
-./../ibm-utils.h:153:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h:154:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-utils.h: In function ‘ibm_dirichlet_gradientv2’:
+./../ibm-utils.h:368:9: warning: variable ‘type’ set but not used [-Wunused-but-set-variable]
 cylinder-oscv11.c: In function ‘profile’:
-cylinder-oscv11.c:160:21: warning: format ‘%g’ expects a matching ‘double’ argument [-Wformat=]
-cylinder-oscv11.c:160:21: warning: format ‘%g’ expects a matching ‘double’ argument [-Wformat=]
-cylinder-oscv11.c:139:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylinder-oscv11.c:135:22: warning: unused variable ‘fcb’ [-Wunused-variable]
-cylinder-oscv11.c:128:10: warning: unused variable ‘delta’ [-Wunused-variable]
+cylinder-oscv11.c:162:21: warning: format ‘%g’ expects a matching ‘double’ argument [-Wformat=]
+cylinder-oscv11.c:162:21: warning: format ‘%g’ expects a matching ‘double’ argument [-Wformat=]
+cylinder-oscv11.c:141:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv11.c:137:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv11.c:130:10: warning: unused variable ‘delta’ [-Wunused-variable]
 cylinder-oscv11.c: In function ‘profile2’:
-cylinder-oscv11.c:190:14: warning: unused variable ‘area’ [-Wunused-variable]
-cylinder-oscv11.c:186:22: warning: unused variable ‘fcb’ [-Wunused-variable]
-cylinder-oscv11.c:179:10: warning: unused variable ‘delta’ [-Wunused-variable]
+cylinder-oscv11.c:192:14: warning: unused variable ‘area’ [-Wunused-variable]
+cylinder-oscv11.c:188:22: warning: unused variable ‘fcb’ [-Wunused-variable]
+cylinder-oscv11.c:181:10: warning: unused variable ‘delta’ [-Wunused-variable]
 ast/init_solver.h: In function ‘logfile’:
-cylinder-oscv11.c:119:3: warning: ‘Fmu.y’ is used uninitialized [-Wuninitialized]
+cylinder-oscv11.c:121:3: warning: ‘Fmu.y’ is used uninitialized [-Wuninitialized]
 cylinder-oscv11.c:92:9: note: ‘Fmu’ declared here
-cylinder-oscv11.c:119:3: warning: ‘Fmu.x’ is used uninitialized [-Wuninitialized]
+cylinder-oscv11.c:121:3: warning: ‘Fmu.x’ is used uninitialized [-Wuninitialized]
 cylinder-oscv11.c:92:9: note: ‘Fmu’ declared here
-cylinder-oscv11.c:119:3: warning: ‘Fp.y’ is used uninitialized [-Wuninitialized]
+cylinder-oscv11.c:121:3: warning: ‘Fp.y’ is used uninitialized [-Wuninitialized]
 cylinder-oscv11.c:91:9: note: ‘Fp’ declared here
-cylinder-oscv11.c:119:3: warning: ‘Fp.x’ is used uninitialized [-Wuninitialized]
+cylinder-oscv11.c:121:3: warning: ‘Fp.x’ is used uninitialized [-Wuninitialized]
 cylinder-oscv11.c:91:9: note: ‘Fp’ declared here

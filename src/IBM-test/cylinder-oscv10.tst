@@ -1,2 +1,0 @@
-98352a9f49fb6313fdaf48f65c097e75  cylinder-oscv10.c
-7b2ae78df01ac3aa4aa4204088435c97  cylinder-oscv10.s

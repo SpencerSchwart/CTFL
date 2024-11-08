@@ -1,7 +1,8 @@
 #ifndef BASILISK_HEADER_19
 #define BASILISK_HEADER_19
 #line 1 "./../immersed-new.h"
-#include "fractions.h"
+#include "vof.h"
+// #include "fractions.h"
 #include "ibm-utils.h"
 
 extern coord vc;          // object's imposed velocity
@@ -34,8 +35,20 @@ event init (t = 0)
                 if (vof[] == 1)
                     u.x[] = vc.x;
         }
+    foreach_face()
+        uf.x[] = face_value(u.x, 0);
 }
 
+/*
+event vof (i++)
+{
+    if (i > 0)
+        foreach_face() {
+            uf.x[] = vc.x;
+            ufp.x[] = vc.x;
+        }
+}
+*/
 
 event acceleration (i++)
 {
@@ -127,9 +140,7 @@ event acceleration (i++)
                         foreach_dimension() {
                             forceSum.x += (desiredForce.x[] * delta_h * dv());
                         }
-                        // fprintf (stderr, "|| %g %g %g %g delta=%g F.x=%g F.y=%g F.z=%g px=%g py=%g pz=%g\n", vof[], x1, y1, z1, delta_h, forceSum.x, forceSum.y, forceSum.z, markerCoord.x[], markerCoord.y[], markerCoord.z[]);
                     }
-            // fprintf (stderr, "|| DONE: %g %g %g sum.x=%g sumy=%g sumz=%g\n", x, y, z, forceSum.x, forceSum.y, forceSum.z);
             }
             foreach_dimension() 
                 cellForce.x[] = forceSum.x;
@@ -211,7 +222,7 @@ void immersed_force (scalar c, scalar p, vector u,
 coord ibm_force ()
 {
     coord ibmForce = {0};
-    foreach()
+    foreach(reduction(+:ibmForce))
         foreach_dimension()
             ibmForce.x += forceTotal.x[]*dv();
     return ibmForce;

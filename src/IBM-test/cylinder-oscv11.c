@@ -99,8 +99,10 @@ event logfile (i++, t <= t_end){
   avgCL += t > tf_start? CL: 0;
   count += t > tf_start? 1:0;
 
+  double volume = 0.;
   coord Fd = {0};
   foreach() {
+    volume += vof[]*dv();
     p01[] = p[];
     foreach_dimension() {
         u0.x[] = u.x[];
@@ -116,10 +118,10 @@ event logfile (i++, t <= t_end){
        xc.y, vc.y, Fd.x, Fd.y);                                                                    // 33
 */       
 
-  fprintf (stderr, "%d %g %d %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
+  fprintf (stderr, "%d %g %d %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
            i, t, Re, CD, avgCD/(count + 1e-6), CL, avgCL/(count + 1e-6), // 7
            Fp.x, Fp.y, Fmu.x, Fmu.y, xc.y, vc.y, // 13
-           2.*Fd.x, 2.*Fd.y, Fu.x, Fu.y); // 17
+           2.*Fd.x, 2.*Fd.y, Fu.x, Fu.y, volume); // 17
 }
 
 

@@ -78,7 +78,7 @@ event adapt (i++) {
 
 event snapshot (t = t_end) {
   FILE * file = fopen("data.txt", "w");
-  output_field (list = {u.x, u.y, p}, fp = file, n = 512);
+  output_field (list = {u.x, u.y, p}, fp = file, n = 255, box={{4, 7}, {10, 13}});
   fclose(file);
 }
 
@@ -89,3 +89,4 @@ event stop (t = t_end) {
   fflush (fp);
   return 1;
 }
+

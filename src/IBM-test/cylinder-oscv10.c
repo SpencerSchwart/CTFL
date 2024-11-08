@@ -17,7 +17,8 @@ coord xc = {0, 0};
 const double A = 0.2*D;
 double freq = 0.156;
 
-scalar vof[];
+scalar vof[], * interfaces = {vof};
+
 face vector sf[];
 face vector muv[];
 
@@ -48,11 +49,11 @@ int main() {
 }
 
 
-event moving_cylinder (i++) {
-  // xc.y = A*sin(2*M_PI*freq*t);
+event moving_cylinder (t = 0) {
   xc.y = -A*cos(2*M_PI*freq*t);
-  // vc.y = 2*M_PI*freq*A*cos(2*M_PI*freq*(t)); 
   vc.y = A*2*M_PI*freq*sin(2*M_PI*freq*(t)); // + dt or not?
+  solid (vof, sf, - sq(x - ci.x - xc.x) - sq(y - ci.y - xc.y) + sq(D/2));
+  refine (vof[] > 0 && vof[] < 1 && level < LEVEL);
   solid (vof, sf, - sq(x - ci.x - xc.x) - sq(y - ci.y - xc.y) + sq(D/2));
 }
 
@@ -62,6 +63,9 @@ event init (t = 0) {
 
 
 event properties (i++) {
+  xc.y = -A*cos(2*M_PI*freq*(t-(dt/2)));
+  vc.y = A*2*M_PI*freq*sin(2*M_PI*freq*(t-(dt/2))); // + dt or not?
+
   foreach_face()
     muv.x[] = fm.x[]*(U0)*(D)/(Re);
    boundary ((scalar *) {muv});
@@ -99,8 +103,10 @@ event logfile (i++, t <= t_end){
   avgCL += t > tf_start? CL: 0;
   count += t > tf_start? 1:0;
 
+  double volume = 0.;
   coord Fd = {0};
   foreach() {
+    volume += vof[]*dv();
     p01[] = p[];
     foreach_dimension() {
         u0.x[] = u.x[];
@@ -116,10 +122,10 @@ event logfile (i++, t <= t_end){
        xc.y, vc.y, Fd.x, Fd.y);                                                                    // 33
 */       
 
-  fprintf (stderr, "%d %g %d %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
+  fprintf (stderr, "%d %g %d %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
            i, t, Re, CD, avgCD/(count + 1e-6), CL, avgCL/(count + 1e-6), // 7
            Fp.x, Fp.y, Fmu.x, Fmu.y, xc.y, vc.y, // 13
-           2.*Fd.x, 2.*Fd.y, Fu.x, Fu.y); // 17
+           2.*Fd.x, 2.*Fd.y, Fu.x, Fu.y, volume); // 17
 }
 
 

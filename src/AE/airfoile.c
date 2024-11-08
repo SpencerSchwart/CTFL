@@ -6,12 +6,12 @@
 #define CHORD_LENGTH 1.
 #define L0 20.
 #define Re (6000000)
-#define LEVEL 11
+#define LEVEL 12
 
 double U0 =  1.0; // inlet velocity
 double rr = 1.1019*sq(MAX_THICKNESS); // Radius of leading edge
-double theta_p = (5)*pi/180; // aoa = 20 degrees
-double t_end = 20;
+double theta_p = 5.; // aoa = 20 degrees
+double t_end = 25;
 
 coord vc = {0.,0.}; // the velocity of the cylinder
 coord ci = {5, 10}; // initial coordinates of airfoil
@@ -88,11 +88,11 @@ event init (t = 0) {
   int ic = 0;
   do {
     ic++;
-    airfoil_shape (cs, fs, theta_p);
+    airfoil_shape (cs, fs, theta_p*(M_PI/180));
     ss = adapt_wavelet ({cs}, (double[]) {1.e-30},
 			maxlevel = LEVEL, minlevel = (1));
   } while ((ss.nf || ss.nc) && ic < 100);
-  airfoil_shape(cs, fs, theta_p);
+  airfoil_shape(cs, fs, theta_p*(M_PI/180));
   foreach()
     u.x[] = cs[] ? U0 : 0.;
 
@@ -125,8 +125,10 @@ event adapt (i++) {
 }
 
 event snapshot (t = t_end) {
-  FILE * file = fopen("data.txt", "w");
-  output_field (list = {u.x, u.y, p}, fp = file, n = (1 << LEVEL) );
+  char name[80];
+  sprintf(name, "data-%d-%g.txt", Re, theta_p);
+  FILE * file = fopen(name, "w");
+  output_field (list = {u.x, u.y, p}, fp = file, n = 620, box={{4.5, 8.5}, {7.5, 11.5}} );
   fclose(file);
 }
 
