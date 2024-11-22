@@ -3,6 +3,8 @@
 extern scalar fused;
 extern scalar vof;
 extern face vector sf;
+extern scalar id;
+extern coord vc;
 
 typedef struct fragment {
     coord n;
@@ -19,14 +21,27 @@ void bilinear_interpolation (Point point, vector uv, coord pc, coord * uc)
     double xx = x - xc;
     double yy = y - yc;
 
-    double x2 = x - sign(xx)*Delta;
-    double y2 = y - sign(yy)*Delta;
+    int i = sign(xx);
+    int j = sign(yy);
+
+    double x2 = x - i*Delta;
+    double y2 = y - j*Delta;
+
+    coord ghostCell[4] = {1};
+    if (id[] > 0)
+        ghostCell[0] = vc;
+    if (id[-i] > 0)
+        ghostCell[1] = vc;
+    if (id[0,-j] > 0)
+        ghostCell[2] = vc;
+    if (id[-i,-j] > 0)
+        ghostCell[3] = vc;
 
     foreach_dimension() {
-        uci.x = (x2 - xc)*(y2 - yc) * uv.x[] +
-                (xc - x) * (y2 - yc) * uv.x[-sign(xx)] +
-        	    (x2 - xc) * (yc - y) * uv.x[0,-sign(yy)] +
-	            (xc - x) * (yc - y) * uv.x[-sign(xx),-sign(yy)];
+        uci.x = (x2 - xc)*(y2 - yc) * ghostCell[0].x*uv.x[] +
+                (xc - x) * (y2 - yc) * ghostCell[1].x*uv.x[-i] +
+        	    (x2 - xc) * (yc - y) * ghostCell[2].x*uv.x[0,-j] +
+	            (xc - x) * (yc - y) * ghostCell[3].x*uv.x[-i,-j];
         uci.x /=  ((x2 - x)*(y2 - y));
     }
 
@@ -148,7 +163,7 @@ coord boundary_int (Point point, fragment frag, coord fluidCell, scalar vof)
     coord ghostCell = {x, y};
 
     double slope = -(frag.n.x / frag.n.y);
-    
+    // fprintf(stderr,"|| x=%g y=%g vof=%g n.x=%g n.y=%g fx=%g fy=%g\n", x, y, frag.c, frag.n.x, frag.n.y, fluidCell.x, fluidCell.y);
     double coeff[3];
     if (fabs(frag.n.x) > fabs(frag.n.y) && vof[] == 1) {
         coeff[0] = 1.;
@@ -216,7 +231,12 @@ coord image_velocity (Point point, vector u, coord imagePoint)
     // 2D bilinear interpolation
     coord temp_velo;
     bilinear_interpolation (point, u, imagePoint, &temp_velo);
-
+    /*
+    double xp = imagePoint.x;
+    double yp = imagePoint.y;
+    foreach_dimension()
+        temp_velo.x = interpolate (u.x, xp, yp);
+    */
     return temp_velo;
     /*
     double coeff[6];

@@ -313,12 +313,18 @@ compute the velocity advection term, using the standard
 Bell-Collela-Glaz advection scheme for each component of the velocity
 field. */
 
+vector ua[];
+
 event advection_term (i++,last)
 {
   if (!stokes) {
     prediction();
     mgpf = project (uf, pf, alpha, dt/2., mgpf.nrelax);
     advection ((scalar *){u}, uf, dt, (scalar *){g});
+
+    foreach()
+        foreach_dimension()
+            ua.x[] = u.x[];
   }
 }
 
@@ -342,11 +348,20 @@ the implicit viscosity solver. We then remove the acceleration and
 pressure gradient terms as they will be replaced by their values at
 time $t+\Delta t$. */
 
+vector uv[];
+
+vector uv0[];
+
 event viscous_term (i++,last)
 {
+  foreach()
+    foreach_dimension()
+      uv0.x[] = u.x[];
+
   if (constant(mu.x) != 0.) {
     correction (dt);
     mgu = viscosity (u, mu, rho, dt, mgu.nrelax);
+    // mgu = viscosity_explicit (u, mu, rho, dt);
     correction (-dt);
   }
 
@@ -359,6 +374,10 @@ event viscous_term (i++,last)
     foreach_face()
       af.x[] = 0.;
   }
+
+  foreach()
+    foreach_dimension()
+        uv.x[] = u.x[];
 }
 
 /**
@@ -378,11 +397,17 @@ The (provisionary) face velocity field at time $t+\Delta t$ is
 obtained by interpolation from the centered velocity field. The
 acceleration term is added. */
 
+vector uac[];
+
 event acceleration (i++,last)
 {
   trash ({uf});
   foreach_face()
     uf.x[] = fm.x[]*(face_value (u.x, 0) + dt*a.x[]);
+
+  foreach()
+    foreach_dimension()
+      uac.x[] = u.x[];
 }
 
 /**
@@ -418,6 +443,8 @@ To get the pressure field at time $t + \Delta t$ we project the face
 velocity field (which will also be used for tracer advection at the
 next timestep). Then compute the centered gradient field *g*. */
 
+vector up[];
+
 event projection (i++,last)
 {
   mgp = project (uf, p, alpha, dt, mgp.nrelax);
@@ -427,6 +454,10 @@ event projection (i++,last)
   We add the gradient field *g* to the centered velocity field. */
 
   correction (dt);
+
+  foreach()
+    foreach_dimension()
+      up.x[] = u.x[];
 }
 
 /**

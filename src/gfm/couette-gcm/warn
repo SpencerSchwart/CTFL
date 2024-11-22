@@ -1,0 +1,25 @@
+.qccAoa2ui/couette-gcm.c:1:7: warning: line number out of range
+couette-gcm-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-gfm-utils.h: In function ‘bilinear_interpolation’:
+./../ibm-gfm-utils.h:30:26: warning: missing braces around initializer [-Wmissing-braces]
+./../ibm-gfm-utils.h: In function ‘_stencil_bilinear_interpolation’:
+./../ibm-gfm-utils.h:35:1: warning: embedding a directive within macro arguments is not portable
+./../ibm-gfm-utils.h: In function ‘boundary_int’:
+./../ibm-gfm-utils.h:196:33: warning: variable ‘min_y’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:196:26: warning: variable ‘min_x’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:196:19: warning: variable ‘max_y’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:196:12: warning: variable ‘max_x’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:194:12: warning: unused variable ‘dist’ [-Wunused-variable]
+./../ibm-gfm-utils.h: In function ‘image_point’:
+./../ibm-gfm-utils.h:218:13: warning: unused variable ‘dist’ [-Wunused-variable]
+./../ibm-gfm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-gfm-utils.h:264:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-gfm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-gfm-utils.h:264:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-gfm.h: In function ‘end_timestep_0’:
+./../ibm-gfm.h:161:19: warning: unused variable ‘closestCell’ [-Wunused-variable]
+./../ibm-gfm.h:151:11: warning: variable ‘intercepts’ set but not used [-Wunused-but-set-variable]
+couette-gcm.c: At top level:
+couette-gcm.c:15:22: warning: initializer element is not a constant expression [-Wpedantic]

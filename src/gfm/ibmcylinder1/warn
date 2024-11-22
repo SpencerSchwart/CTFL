@@ -1,0 +1,22 @@
+.qccAJIw1z/ibmcylinder1.c:1:7: warning: line number out of range
+ibmcylinder1-cpp.c: warning: line number out of range
+<built-in>: warning: line number out of range
+/usr/include/stdc-predef.h:1:7: warning: line number out of range
+./../ibm-gfm-utils.h: In function ‘boundary_int’:
+./../ibm-gfm-utils.h:181:33: warning: variable ‘min_y’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:181:26: warning: variable ‘min_x’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:181:19: warning: variable ‘max_y’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:181:12: warning: variable ‘max_x’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm-utils.h:179:12: warning: unused variable ‘dist’ [-Wunused-variable]
+./../ibm-gfm-utils.h: In function ‘image_point’:
+./../ibm-gfm-utils.h:203:13: warning: unused variable ‘dist’ [-Wunused-variable]
+./../ibm-gfm-utils.h: In function ‘dirichlet_gradient_x’:
+./../ibm-gfm-utils.h:248:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-gfm-utils.h: In function ‘dirichlet_gradient_y’:
+./../ibm-gfm-utils.h:248:10: warning: unused variable ‘defined’ [-Wunused-variable]
+./../ibm-gfm.h: In function ‘acceleration_0’:
+./../ibm-gfm.h:57:19: warning: unused variable ‘closestCell’ [-Wunused-variable]
+./../ibm-gfm.h:47:11: warning: variable ‘intercepts’ set but not used [-Wunused-but-set-variable]
+./../ibm-gfm.h: In function ‘end_timestep_0’:
+./../ibm-gfm.h:147:19: warning: unused variable ‘closestCell’ [-Wunused-variable]
+./../ibm-gfm.h:137:11: warning: variable ‘intercepts’ set but not used [-Wunused-but-set-variable]

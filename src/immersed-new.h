@@ -1,5 +1,5 @@
-#include "vof.h"
-// #include "fractions.h"
+// #include "vof.h"
+#include "fractions.h"
 #include "ibm-utils.h"
 
 extern coord vc;          // object's imposed velocity

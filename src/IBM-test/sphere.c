@@ -54,7 +54,7 @@ int main() {
   CFL = 0.8;
 
 
-  Re = 100;
+  Re = 40;
   run();
 
   Re = 250;

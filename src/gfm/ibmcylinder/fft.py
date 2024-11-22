@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-file_path = '/home/spencer/basilisk/CTFL/src/gfm/ibmcylinder/freq-10-100.dat'
+file_path = '/home/spencer/basilisk/CTFL/src/gfm/ibmcylinder/freq-10-300.dat'
 data = pd.read_csv(file_path, delim_whitespace=True, header=None, names=['count', 'x', 'y', 'time', 'u_x', 'u_y', 'p'])
 
 time = data['time'].values

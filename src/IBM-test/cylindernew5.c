@@ -41,7 +41,7 @@ int main() {
   init_grid (1 << (LEVEL-2));
   mu = muv;
   TOLERANCE = 1.e-6; 
-  CFL = 0.2;
+  CFL = 0.8;
 
   Re = 1;
   run();
@@ -62,6 +62,42 @@ int main() {
   count = 0, cdcount = 0;
 
   Re = 10;
+  run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
+  Re = 20;
+  run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
+  Re = 40;
+  run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
+  Re = 80;
+  run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
+  Re = 100;
+  run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
+  Re = 200;
+  run();
+
+  avgCD = 0, avgCL = 0;
+  count = 0, cdcount = 0;
+
+  Re = 300;
   run();
 
   avgCD = 0, avgCL = 0;
@@ -180,7 +216,7 @@ event profile (t = t_end) {
   fflush (fv4);
   fclose (fv4);
 
-  sprintf (name, "left-boundary-%d.dat", Re);
+  sprintf (name, "right-boundary-%d.dat", Re);
   FILE * fpv = fopen (name, "w");
   foreach_boundary(right)
     fprintf (fpv, "%g %g %g %g %g %g\n", x, y, Delta, u.x[], u.y[], p[]);
@@ -255,28 +291,39 @@ event profile (t = t_end) {
   fflush (fv5);
   fclose (fv5);
 
-  scalar boundaryVelocity[];
-  fraction (boundaryVelocity, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq(0.51758/2));
-  sprintf (name, "surfaceVelocity1-%d", Re);
+  scalar ring[];
+  fraction (ring, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq((0.5+0.0146)/2));
+  sprintf (name, "ring1-%d", Re);
   FILE * fv6 = fopen (name, "w");
   foreach()
-    if (boundaryVelocity[] > 0 && boundaryVelocity[] < 1) {
+    if (ring[] > 0 && ring[] < 1) {
       double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
       fprintf (fv6, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
     }
   fflush (fv6);
   fclose (fv6);
 
-  fraction (boundaryVelocity, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq(0.53516/2));
-  sprintf (name, "surfaceVelocity2-%d", Re);
+  fraction (ring, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq((0.5+0.0293)/2));
+  sprintf (name, "ring2-%d", Re);
   FILE * fv7 = fopen (name, "w");
   foreach()
-    if (boundaryVelocity[] > 0 && boundaryVelocity[] < 1) {
+    if (ring[] > 0 && ring[] < 1) {
       double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
       fprintf (fv7, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
     }
   fflush (fv7);
   fclose (fv7);
+
+  fraction (ring, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq((0.5+0.0439)/2));
+  sprintf (name, "ring3-%d", Re);
+  FILE * fv8 = fopen (name, "w");
+  foreach()
+    if (ring[] > 0 && ring[] < 1) {
+      double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
+      fprintf (fv8, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
+    }
+  fflush (fv8);
+  fclose (fv8);
 }
 
 
@@ -285,52 +332,33 @@ event snapshot (t = t_end) {
   vorticity (u, omega);
 
   char name[80];
-  view (fov = 2, tx = -0.235, ty = -0.465,
+  view (fov = 2, tx = -0.25, ty = -0.465,
         width = 3000, height = 1500); 
-  sprintf (name, "xvelo-%d.png", Re);
+  sprintf (name, "%g-pressure-%d.png", t, Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  squares ("u.x", min = 0, max = 1.5, map = cool_warm);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
+  squares ("p", min = -0.5, max = 0.5, map = blue_white_red);
   save (name);
 
-  sprintf (name, "yvelo-%d.png", Re);
+  sprintf (name, "%g-vort-%d.png", t, Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  squares ("u.y", min = -0.5, max = 0.5, map = cool_warm);
+  squares ("omega", min = -3, max = 3, map = blue_white_red);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
   save (name);
 
-  sprintf (name, "pressure-%d.png", Re);
+  sprintf (name, "%g-pressureiso-%d.png", t, Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  squares ("u.y", min = -0.5, max = 0.5, map = cool_warm);
+  draw_vof ("vof", "sf", lw = 5, lc = {0,0,0});
+  isoline ("p", n = 20, min = -0.5, max = 0.5, lc = {0,0,0});
+  squares ("p", min = -0.5, max = 0.5, map = blue_white_red);
   save (name);
 
-  sprintf (name, "vectors-%d.png", Re);
+  sprintf (name, "%g-vortiso-%d.png", t, Re);
   clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  vectors ("u", scale =  0.01);
-  squares ("u.x", min = -0.5, max = 1, map = cool_warm);
-  save (name);
-
-  sprintf (name, "pressureiso-%d.png", Re);
-  clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  isoline ("p", n = 20, min = -0.5, max = 0.5, lc = {1,0,0});
-  save (name);
-
-  sprintf (name, "veloiso-%d.png", Re);
-  clear();
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  isoline ("u.x", n = 25, min = -.1, max = 1.15, lc = {1,0,0});
-  save (name);
-
-  sprintf (name, "vortiso-%d.png", Re);
-  clear();
-  isoline ("omega", n = 15, min = -3, max = 3, lc = {1,0,0});
-  draw_vof ("vof", "sf", filled = 1, lw = 5);
-  save (name);
-
-}
+  isoline ("omega", n = 15, min = -3, max = 3, lc = {0,0,0});
+  squares ("omega", min = -3, max = 3, map = blue_white_red);
+  draw_vof ("vof", "sf", lw = 5,  lc = {0,0,0});
+  save (name);}
 
 
 event adapt (i++) {
@@ -340,7 +368,7 @@ event adapt (i++) {
 
 
 event frequency (i++) {
-  if (t >= tf_start && Re >= 100) {
+  if (t >= tf_start && Re >= 50) {
     char name[80];
     sprintf (name, "freq-7.5-%d.dat", Re);
     FILE * fp = fopen (name, "a");
@@ -359,12 +387,14 @@ event frequency (i++) {
   }
 }
 
+/*
 event dump (t += 20) {
   char name[80];
 
   sprintf (name, "%d-dump-%g", Re, t);
   dump (file = name);
 }
+*/
 
 /*
 event movie (t += 0.1; t <= t_end) {
@@ -389,6 +419,7 @@ event stop (t = t_end) {
   static FILE * fp = fopen("perf", "w");
   timing s = timer_timing (perf.gt, iter, perf.tnc, NULL);
   fprintf (fp, "%d\t%g\t%d\t%g\n", Re, s.real, i, s.speed);
+  fprintf (fp, "%d\t%d\t%d\t%d\n", mgp.i, mgp.nrelax, mgu.i, mgu.nrelax);
   fflush (fp);
   return 1;
 }

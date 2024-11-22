@@ -1,10 +1,13 @@
 #include "../my-embed.h"
-#include "navier-stokes/centered.h"
+// #include "navier-stokes/centered.h"
+#include "../my-centered.h"
 #include "view.h"
 
 #define L0 15
 #define D 0.5
-#define LEVEL 11
+#define LEVEL 10
+
+#undef EMBED
 
 int Re;
 double U0 =  1.; // inlet velocity
@@ -13,6 +16,7 @@ double tf_start = 20 [0,1];
 double xi = 4.8266;
 double yi = 3.0835;
 coord ci = {L0/4, L0/2}; // initial coordinates of cylinder
+coord vc = {0,0};
 
 face vector muv[];
 
@@ -43,14 +47,12 @@ int main() {
   init_grid (1 << (LEVEL - 3));
   mu = muv;
   TOLERANCE = 1.e-6 [*]; 
-  DT = 0.01;
+  // DT = 0.01;
+  CFL = 0.8;
 
-  Re = 40;
+  Re = 1;
   run();
 
-  Re = 185;
-  run();
-/*
   Re = 2;
   run();
 
@@ -66,9 +68,17 @@ int main() {
   Re = 40;
   run();
 
-  Re = 50;
+  Re = 80;
   run();
-  */
+  
+  Re = 100;
+  run();
+
+  Re = 200;
+  run();
+
+  Re = 300;
+  run();
 }
 
 
@@ -253,7 +263,7 @@ event profile (t = t_end) {
   }
   fflush (fv5);
   fclose (fv5);
-
+/*
   scalar boundaryVelocity[];
   fraction (boundaryVelocity, - sq(x - ci.x) - sq(y - ci.y) + sq(0.51758/2));
   sprintf (name, "surfaceVelocity1-%d", Re);
@@ -276,6 +286,40 @@ event profile (t = t_end) {
     }
   fflush (fv7);
   fclose (fv7);
+*/
+  scalar ring[];
+  fraction (ring, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq((0.5+0.0146)/2));
+  sprintf (name, "ring1-%d", Re);
+  FILE * fv6 = fopen (name, "w");
+  foreach()
+    if (ring[] > 0 && ring[] < 1) {
+      double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
+      fprintf (fv6, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
+    }
+  fflush (fv6);
+  fclose (fv6);
+
+  fraction (ring, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq((0.5+0.0293)/2));
+  sprintf (name, "ring2-%d", Re);
+  FILE * fv7 = fopen (name, "w");
+  foreach()
+    if (ring[] > 0 && ring[] < 1) {
+      double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
+      fprintf (fv7, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
+    }
+  fflush (fv7);
+  fclose (fv7);
+
+  fraction (ring, - sq(x - ci.x - vc.x) - sq(y - ci.y - vc.y) + sq((0.5+0.0439)/2));
+  sprintf (name, "ring3-%d", Re);
+  FILE * fv8 = fopen (name, "w");
+  foreach()
+    if (ring[] > 0 && ring[] < 1) {
+      double theta = atan2 ((y - ci.y), (x - ci.x)) * (180/M_PI);
+      fprintf (fv8, "%g %g %g %g %g %g\n", x, y, theta, u.x[], u.y[], p[]);
+    }
+  fflush (fv8);
+  fclose (fv8);
 }
 
 event snapshot (t = t_end) {
@@ -283,7 +327,7 @@ event snapshot (t = t_end) {
   vorticity (u, omega);
 
   char name[80];
-  view (fov = 2, tx = -0.275, ty = -0.50,
+  view (fov = 2, tx = -0.25, ty = -0.465,
 	width = 3000, height = 1500); 
   sprintf (name, "xvelo-%d.png", Re);
   clear();
@@ -316,6 +360,7 @@ event snapshot (t = t_end) {
 	    width = 3000, height = 1500);
   draw_vof ("cs", "fs", filled = -1, lw = 5);
   isoline ("p", n = 20, min = -0.5, max = 0.5);
+  squares ("p", min = -0.5, max = 0.5, map = blue_white_red);
   save (name);
 
   sprintf (name, "veloiso-%d.png", Re);
@@ -327,6 +372,7 @@ event snapshot (t = t_end) {
   sprintf (name, "vortiso-%d.png", Re);
   clear();
   isoline ("omega", n = 15, min = -3, max = 3);
+  squares ("omega", min = -3, max = 3, map = blue_white_red);
   draw_vof ("cs", "fs", filled = -1, lw = 5);
   save (name);
 }
@@ -334,18 +380,18 @@ event snapshot (t = t_end) {
 
 int count = 0;
 event frequency (i++) {
-  if (t >= tf_start) {
+  if (t >= tf_start && Re >= 50) {
     char name[80];
-    sprintf (name, "freq-7.5.dat");
+    sprintf (name, "freq-7.5-%d.dat", Re);
     FILE * fp = fopen (name, "a");
-    foreach_point(7.500, ci.y) {
+    foreach_point(7.5000, 7.5000) {
       fprintf (fp, "%d %g %g %g %g %g %g\n", count, x, y, t, u.x[], u.y[], p[]);
     }
     fclose (fp);
 
-    sprintf (name, "freq-10.dat");
+    sprintf (name, "freq-10-%d.dat", Re);
     FILE * fp1 = fopen (name, "a");
-    foreach_point(10.000, ci.y) {
+    foreach_point(10.0000, 7.5000) {
       fprintf (fp1, "%d %g %g %g %g %g %g\n", count, x, y, t, u.x[], u.y[], p[]);
     }
     fclose (fp1);
@@ -354,13 +400,11 @@ event frequency (i++) {
 }
 
 
-event movie (t += 0.01; t <= t_end) {
-}
-
 event stop (t = t_end) {
   static FILE * fp = fopen("perf", "w");
   timing s = timer_timing (perf.gt, iter, perf.tnc, NULL);
   fprintf (fp, "%d\t%g\t%d\t%g\n", Re, s.real, i, s.speed);
+  fprintf (fp, "%d\t%d\t%d\t%d\n", mgp.i, mgp.nrelax, mgu.i, mgu.nrelax);
   fflush (fp);
   return 1;
 }
