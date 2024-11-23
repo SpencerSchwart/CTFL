@@ -1,5 +1,5 @@
-#ifndef BASILISK_HEADER_21
-#define BASILISK_HEADER_21
+#ifndef BASILISK_HEADER_19
+#define BASILISK_HEADER_19
 #line 1 "./../my-centered.h"
 /**
 # Incompressible Navier--Stokes solver (centered formulation)
@@ -31,9 +31,9 @@ for viscosity. */
 #include "timestep.h"
 #include "bcg.h"
 #if EMBED
-# include "viscosity-embed.h"
+# include "my-viscosity-embed.h"
 #else
-# include "viscosity.h"
+# include "my-viscosity-gcm.h"
 #endif
 
 /**
@@ -88,7 +88,9 @@ and staggering of $\mathbf{a}$, this can be written */
 # define neumann_pressure(i) (alpha.n[i] ? a.n[i]*fm.n[i]/alpha.n[i] :	\
 			      a.n[i]*rho[]/(cm[] + SEPS))
 #else
-# define neumann_pressure(i) (a.n[i]*fm.n[i]/alpha.n[i])
+// # define neumann_pressure(i) (a.n[i]*fm.n[i]/alpha.n[i])
+# define neumann_pressure(i) (alpha.n[i] ? a.n[i]*fm.n[i]/alpha.n[i] :	\
+			      a.n[i]*rho[]/(cm[] + SEPS))
 #endif
 
 p[right] = neumann (neumann_pressure(ghost));
@@ -122,6 +124,12 @@ void pressure_embed_gradient (Point point, scalar p, coord * g)
     g->x = rho[]/(cm[] + SEPS)*(a.x[] + a.x[1])/2.;
 }
 #endif // TREE && EMBED
+
+void pressure_ibm_gradient (Point point, scalar p, coord * g)
+{
+  foreach_dimension()
+    g->x = rho[]/(cm[] + SEPS)*(a.x[] + a.x[1])/2.;
+}
 
 /**
 ## Initial conditions */
@@ -173,6 +181,17 @@ event defaults (i = 0)
   for (scalar s in {p, pf})
     s.embed_gradient = pressure_embed_gradient;
 #endif // EMBED
+
+// IBM stuff
+  uf.x.refine = refine_face;
+  foreach_dimension()
+    uf.x.prolongation = refine_ibm_face_x;
+  for (scalar s in {p, pf, u, g}) {
+    s.restriction = restriction_ibm_linear;
+    s.refine = s.prolongation = refine_ibm_linear;
+    s.depends = list_add (s.depends, vof);
+  }
+
 #endif // TREE
 
   /**
@@ -266,21 +285,21 @@ void prediction()
   if (u.x.gradient)
     foreach()
       foreach_dimension() {
-#if EMBED
-        if (!fs.x[] || !fs.x[1])
-	  du.x[] = 0.;
+//#if EMBED
+    if (!sf.x[] || !sf.x[1])
+	    du.x[] = 0.;
 	else
-#endif
+//#endif
 	  du.x[] = u.x.gradient (u.x[-1], u.x[], u.x[1])/Delta;
       }
   else
     foreach()
       foreach_dimension() {
-#if EMBED
-        if (!fs.x[] || !fs.x[1])
+//#if EMBED
+        if (!sf.x[] || !sf.x[1])
 	  du.x[] = 0.;
 	else
-#endif
+//#endif
 	  du.x[] = (u.x[1] - u.x[-1])/(2.*Delta);
     }
 
@@ -361,6 +380,9 @@ event viscous_term (i++,last)
     foreach_dimension()
       uv0.x[] = u.x[];
 
+// foreach()
+//    fprintf (stderr, "|| x=%g y=%g vof=%g alpha.x=%g alpha.y=%g\n", x, y, vof[], alpha.x[], alpha.y[]);
+
   if (constant(mu.x) != 0.) {
     correction (dt);
     mgu = viscosity (u, mu, rho, dt, mgu.nrelax);
@@ -437,8 +459,10 @@ void centered_gradient (scalar p, vector g)
 
   trash ({g});
   foreach()
-    foreach_dimension()
+    foreach_dimension() {
+      // fprintf (stderr, "|| x=%g y=%g fm=%g fm[1]=%g SEPS=%g\n", x, y, fm.x[], fm.x[1], SEPS);
       g.x[] = (gf.x[] + gf.x[1])/(fm.x[] + fm.x[1] + SEPS);
+    }
 }
 
 /**
@@ -450,6 +474,8 @@ vector up[];
 
 event projection (i++,last)
 {
+ // foreach()
+ //   fprintf (stderr, "|| x=%g y=%g vof=%g alpha.x=%g alpha.y=%g\n", x, y, vof[], alpha.x[], alpha.y[]);
   mgp = project (uf, p, alpha, dt, mgp.nrelax);
   centered_gradient (p, g);
 

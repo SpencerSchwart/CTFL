@@ -1,4 +1,4 @@
-.qccAoa2ui/couette-gcm.c:1:7: warning: line number out of range
+.qccLdFXb8/couette-gcm.c:1:7: warning: line number out of range
 couette-gcm-cpp.c: warning: line number out of range
 <built-in>: warning: line number out of range
 /usr/include/stdc-predef.h:1:7: warning: line number out of range
@@ -18,8 +18,5 @@ couette-gcm-cpp.c: warning: line number out of range
 ./../ibm-gfm-utils.h:264:10: warning: unused variable ‘defined’ [-Wunused-variable]
 ./../ibm-gfm-utils.h: In function ‘dirichlet_gradient_y’:
 ./../ibm-gfm-utils.h:264:10: warning: unused variable ‘defined’ [-Wunused-variable]
-./../ibm-gfm.h: In function ‘end_timestep_0’:
-./../ibm-gfm.h:161:19: warning: unused variable ‘closestCell’ [-Wunused-variable]
-./../ibm-gfm.h:151:11: warning: variable ‘intercepts’ set but not used [-Wunused-but-set-variable]
 couette-gcm.c: At top level:
 couette-gcm.c:15:22: warning: initializer element is not a constant expression [-Wpedantic]

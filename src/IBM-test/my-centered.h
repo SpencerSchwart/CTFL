@@ -30,9 +30,9 @@ for viscosity. */
 #include "run.h"
 #include "timestep.h"
 #include "bcg.h"
-// #if EMBED
-// # include "viscosity-embed.h"
-// #else
+#if EMBED
+# include "viscosity-embed.h"
+#else
 # include "viscosity.h"
 #endif
 
@@ -437,8 +437,10 @@ void centered_gradient (scalar p, vector g)
 
   trash ({g});
   foreach()
-    foreach_dimension()
-      g.x[] = (gf.x[] + gf.x[1])/(fm.x[] + fm.x[1] + SEPS);
+    foreach_dimension() {
+      // fprintf (stderr, "|| x=%g y=%g fm=%g fm[1]=%g SEPS=%g\n", x, y, fm.x[], fm.x[1], SEPS);
+      g.x[] = (gf.x[] + gf.x[1])/(fm.x[] + fm.x[1] + 1);
+    }
 }
 
 /**
@@ -450,6 +452,8 @@ vector up[];
 
 event projection (i++,last)
 {
+ // foreach()
+ //   fprintf (stderr, "|| x=%g y=%g vof=%g alpha.x=%g alpha.y=%g\n", x, y, vof[], alpha.x[], alpha.y[]);
   mgp = project (uf, p, alpha, dt, mgp.nrelax);
   centered_gradient (p, g);
 

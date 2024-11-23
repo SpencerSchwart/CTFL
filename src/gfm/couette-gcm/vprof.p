@@ -6,7 +6,7 @@ set title "U = 5"
 set xlabel "u.x"
 set ylabel "y"
 
-f(y) = y + 4.98047
+f(y) = 2*y
 
 set key center top
 

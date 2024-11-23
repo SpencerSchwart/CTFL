@@ -1,6 +1,6 @@
 //#include "navier-stokes/centered.h"
-#include "../my-centered.h"
 #include "../ibm-gfm.h"
+#include "../my-centered.h"
 #include "view.h"
 
 
@@ -10,19 +10,20 @@ int maxlevel = 7;
 const double U0 = 5;
 double Re = 10;
 double t_end = 100;
-double H = 5;
-coord vc = {0, 0};
+double H = 10;
+// coord vc = {0, 0};
 const double delta = 10./pow(2,7);
 const double int_frac = 0.75;
 double y_min = 4.90;
 double y_max = 5.02;
 double tt = delta * (1 - int_frac);
 
-scalar vof[];
-face vector sf[];
+// scalar vof[];
+// face vector sf[];
 face vector muv[];
 
 u.n[left] = neumann (0);
+// u.n[left] = dirichlet (1);
 
 u.n[right] = neumann (0);
 u.t[right] = neumann (0);
@@ -35,8 +36,8 @@ p[top] = neumann (0);
 pf[top] = neumann (0);
 
 // u.n[bottom] = dirichlet (0);
-// u.t[bottom] = dirichlet (0);
-u.t[bottom] = neumann (0);
+u.t[bottom] = dirichlet (0);
+// u.t[bottom] = neumann (0);
 p[bottom] = neumann (0);
 pf[bottom] = neumann (0);
 
@@ -59,18 +60,34 @@ face vector cyf[];
 bid cylinder;
 u.t[solid] = dirichlet(0.);
 
-event wall (i++) {
-  solid (vof, sf, y < (H));
+double mm = 0.01;
+
+event wall (i=0) {
+  solid (vof, sf, y - (0 + mm*(x-1)));
   // solid (cy, cyf, - sq(x-5-t*(0.01)) - sq(y-7.5) + sq(1));
   //mask (cy[] == 1? cylinder: none);
   //mask (y < 4.90? solid : none);
-  foreach()
-    vof[] = fabs(y) < y_max && fabs(y) > y_min? int_frac: vof[];
+  // foreach() {
+  //  vof[] = fabs(y) < y_max && fabs(y) > y_min? int_frac: vof[];
+  //}
+   // boundary ({vof, sf});
 }
 
+face vector mf[];
+face vector alphamf[];
+scalar mc[];
+scalar rhot[];
+
 event propertires (i++) {
+  foreach() {
+    mc[] = cm[];
+    rhot[] = rho[];
+  }
   foreach_face() {
+      mf.x[] = fm.x[];
+      alphamf.x[] = alpha.x[];
       muv.x[] = fm.x[]*(U0)*(H)/(Re);
+      // muv.x[] = alpha.x[]*1;
   }
   boundary ((scalar *) {muv});
 }
@@ -92,10 +109,10 @@ event logfile (i++, t <= t_end) {
            mgp.i, mgp.nrelax, mgu.i, mgu.nrelax);
 }
 
-
+/*
 event adapt (i++) {
   adapt_wavelet ({vof,u}, (double[]){1.e-2,3e-3,3e-3},
 		 maxlevel = maxlevel, minlevel = maxlevel - 2);
 }
-
+*/
 

@@ -1,6 +1,6 @@
 #include "../my-embed.h"
-// #include "navier-stokes/centered.h"
-#include "../my-centered.h"
+#include "navier-stokes/centered.h"
+//#include "../my-centered.h"
 #include "view.h"
 
 #define L0 15

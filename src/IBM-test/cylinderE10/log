@@ -1,5 +1,4 @@
-0 0 1 0 0 0 0 462.001 0.501194 0 0 115.5 0.125299
-1 0.00106534 1 1 4 1 4 -nan -nan -nan -nan -nan -nan
-./nptl/pthread_kill.c:44:error: [Thread debugging using libthread_db enabled]
-./nptl/pthread_kill.c:44:error: Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
-./nptl/pthread_kill.c:44:error: Program received signal SIGABRT, Aborted.
+0 0 1 0 0 0 0 1332.59 -1.40964 0 0 333.147 -0.352411
+/home/spencer/basilisk/src/grid/tree-common.h:714:error: [Thread debugging using libthread_db enabled]
+/home/spencer/basilisk/src/grid/tree-common.h:714:error: Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+/home/spencer/basilisk/src/grid/tree-common.h:714:error: Program received signal SIGINT, Interrupt.
